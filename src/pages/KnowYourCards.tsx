@@ -289,7 +289,7 @@ export default function KnowYourCards() {
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
+            className="fixed bottom-6 left-0 right-0 z-50 flex justify-center"
           >
             <div className="glass-card rounded-2xl border border-gold/20 shadow-2xl shadow-gold/10 px-6 py-4 flex items-center gap-4">
               <div className="flex items-center gap-2">
@@ -321,7 +321,7 @@ export default function KnowYourCards() {
                 <span className="text-gold font-semibold">{compareList.length}</span>/4 selected
               </div>
               <button
-                onClick={() => navigate("/compare")}
+                onClick={() => navigate(`/compare?cards=${compareList.join(",")}`)}
                 disabled={compareList.length < 2}
                 className={`px-5 py-2.5 rounded-xl text-xs font-medium flex items-center gap-2 transition-all ${
                   compareList.length >= 2
