@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, X, Star, CreditCard, Shield, Fuel, Globe, Gift, Trophy, Heart, Search, ChevronDown, Check } from "lucide-react";
 import PageLayout from "@/components/PageLayout";
@@ -86,7 +87,11 @@ function CardSelector({ onSelect, selectedIds, slotIndex }: { onSelect: (card: C
 }
 
 export default function CompareCards() {
-  const [selected, setSelected] = useState<CardType[]>([]);
+  const [searchParams] = useSearchParams();
+  const [selected, setSelected] = useState<CardType[]>(() => {
+    const cardIds = searchParams.get("cards")?.split(",").filter(Boolean) || [];
+    return cardIds.map((id) => cards.find((c) => c.id === id)).filter(Boolean) as CardType[];
+  });
 
   const addCard = (card: CardType) => {
     if (selected.length < MAX_CARDS) setSelected([...selected, card]);
