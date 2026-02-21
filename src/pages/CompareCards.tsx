@@ -155,33 +155,27 @@ export default function CompareCards() {
 
           {/* Comparison table */}
           {selected.length >= 2 && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className={selected.length <= 2 ? 'max-w-3xl mx-auto' : ''}>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className={selected.length <= 2 ? 'max-w-2xl mx-auto' : ''}>
               {/* Standard fields */}
-              <div className="glass-card rounded-2xl overflow-hidden mb-6">
-                <div className="p-5 border-b border-border/30">
-                  <h2 className="font-serif text-lg font-bold flex items-center gap-2">
-                    <CreditCard className="w-5 h-5 text-gold" /> Card Details
-                  </h2>
-                </div>
-                <div className="divide-y divide-border/20">
-                  {compareFields.map((field) => {
-                    const FieldIcon = field.icon;
-                    return (
-                      <div key={field.key} className="grid" style={{ gridTemplateColumns: `200px repeat(${selected.length}, 1fr)` }}>
-                        <div className="p-4 flex items-center gap-2 bg-secondary/20">
-                          <FieldIcon className="w-3.5 h-3.5 text-gold" />
-                          <span className="text-xs font-medium">{field.label}</span>
+              {compareFields.map((field) => {
+                const FieldIcon = field.icon;
+                return (
+                  <div key={field.key} className="mb-4">
+                    <div className="flex items-center gap-2 mb-2 px-1">
+                      <FieldIcon className="w-3.5 h-3.5 text-gold" />
+                      <span className="text-xs font-medium text-muted-foreground">{field.label}</span>
+                    </div>
+                    <div className={`grid gap-4 ${selected.length <= 2 ? 'grid-cols-2' : selected.length <= 3 ? 'grid-cols-3' : 'grid-cols-2 lg:grid-cols-4'}`}>
+                      {selected.map((card) => (
+                        <div key={card.id} className="glass-card rounded-xl p-4">
+                          <p className="text-xs font-semibold mb-1" style={{ color: card.color }}>{card.name}</p>
+                          <p className="text-sm">{String(card[field.key])}</p>
                         </div>
-                        {selected.map((card) => (
-                          <div key={card.id} className="p-4 flex items-center">
-                            <span className="text-xs text-muted-foreground">{String(card[field.key])}</span>
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
 
               {/* List-based fields */}
               {[
@@ -193,15 +187,14 @@ export default function CompareCards() {
               ].map((section) => {
                 const SectionIcon = section.icon;
                 return (
-                  <div key={section.key} className="glass-card rounded-2xl overflow-hidden mb-6">
-                    <div className="p-5 border-b border-border/30">
-                      <h2 className="font-serif text-lg font-bold flex items-center gap-2">
-                        <SectionIcon className="w-5 h-5 text-gold" /> {section.label}
-                      </h2>
+                  <div key={section.key} className="mb-4">
+                    <div className="flex items-center gap-2 mb-2 px-1">
+                      <SectionIcon className="w-3.5 h-3.5 text-gold" />
+                      <span className="text-xs font-medium text-muted-foreground">{section.label}</span>
                     </div>
-                    <div className="grid" style={{ gridTemplateColumns: `repeat(${selected.length}, 1fr)` }}>
+                    <div className={`grid gap-4 ${selected.length <= 2 ? 'grid-cols-2' : selected.length <= 3 ? 'grid-cols-3' : 'grid-cols-2 lg:grid-cols-4'}`}>
                       {selected.map((card) => (
-                        <div key={card.id} className="p-5 border-r last:border-r-0 border-border/20">
+                        <div key={card.id} className="glass-card rounded-xl p-4">
                           <p className="text-xs font-semibold mb-3" style={{ color: card.color }}>{card.name}</p>
                           <ul className="space-y-2">
                             {(card[section.key] as string[]).map((item, i) => (
