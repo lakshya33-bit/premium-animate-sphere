@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { User, CreditCard, Heart, TrendingUp, Star, Settings, LogOut, Bell, Gift, BookOpen, ChevronRight, IndianRupee } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageLayout from "@/components/PageLayout";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { useToast } from "@/hooks/use-toast";
 
 const savedCards = [
   { name: "HDFC Infinia", network: "Visa", color: "#003D8F", id: "hdfc-infinia" },
@@ -42,7 +43,32 @@ const activity = [
   { text: "Compared ICICI Emeralde vs Diners Black", time: "5 days ago", icon: TrendingUp },
 ];
 
+const sidebarItems = [
+  { icon: CreditCard, label: "My Cards", count: 3, tab: "cards" },
+  { icon: Heart, label: "Favorites", count: 4, tab: "favorites" },
+  { icon: BookOpen, label: "Saved Guides", count: 3, tab: "favorites" },
+  { icon: Bell, label: "Notifications", count: 2, tab: "activity" },
+  { icon: Settings, label: "Settings", tab: null as string | null },
+];
+
 export default function Dashboard() {
+  const [activeTab, setActiveTab] = useState("cards");
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const handleSidebarClick = (item: typeof sidebarItems[0]) => {
+    if (item.tab) {
+      setActiveTab(item.tab);
+    } else if (item.label === "Settings") {
+      toast({ title: "Settings", description: "Settings page coming soon!" });
+    }
+  };
+
+  const handleLogout = () => {
+    toast({ title: "Signed out", description: "You've been signed out successfully." });
+    navigate("/login");
+  };
+
   return (
     <PageLayout>
       <section className="py-12">
@@ -60,21 +86,27 @@ export default function Dashboard() {
               </div>
 
               <div className="glass-card rounded-2xl p-4 space-y-1">
-                {[
-                  { icon: CreditCard, label: "My Cards", count: 3 },
-                  { icon: Heart, label: "Favorites", count: 4 },
-                  { icon: BookOpen, label: "Saved Guides", count: 3 },
-                  { icon: Bell, label: "Notifications", count: 2 },
-                  { icon: Settings, label: "Settings" },
-                ].map((item) => (
-                  <button key={item.label} className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-secondary/30 transition-colors text-sm">
-                    <span className="flex items-center gap-2 text-muted-foreground"><item.icon className="w-4 h-4" /> {item.label}</span>
+                {sidebarItems.map((item) => (
+                  <button
+                    key={item.label}
+                    onClick={() => handleSidebarClick(item)}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors text-sm ${
+                      item.tab === activeTab ? "bg-gold/10 text-gold" : "hover:bg-secondary/30 text-muted-foreground"
+                    }`}
+                  >
+                    <span className="flex items-center gap-2"><item.icon className="w-4 h-4" /> {item.label}</span>
                     <span className="flex items-center gap-1">
                       {item.count && <span className="text-[10px] bg-gold/10 text-gold px-2 py-0.5 rounded-full">{item.count}</span>}
                       <ChevronRight className="w-3 h-3 text-muted-foreground" />
                     </span>
                   </button>
                 ))}
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-destructive/10 transition-colors text-sm text-muted-foreground hover:text-destructive"
+                >
+                  <LogOut className="w-4 h-4" /> Sign Out
+                </button>
               </div>
             </motion.div>
 
@@ -103,7 +135,7 @@ export default function Dashboard() {
                 ))}
               </div>
 
-              <Tabs defaultValue="cards" className="w-full">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="bg-secondary/50 border border-border/50 mb-6">
                   <TabsTrigger value="cards" className="data-[state=active]:bg-gold data-[state=active]:text-background text-xs"><CreditCard className="w-3.5 h-3.5 mr-1" /> My Cards</TabsTrigger>
                   <TabsTrigger value="favorites" className="data-[state=active]:bg-gold data-[state=active]:text-background text-xs"><Heart className="w-3.5 h-3.5 mr-1" /> Favorites</TabsTrigger>
