@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Heart, Bell, Menu, X, ChevronDown, User, Sun, Moon, CreditCard } from "lucide-react";
+import { Heart, Bell, Menu, X, ChevronDown, User, Sun, Moon, Wallet } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/components/ThemeProvider";
 import logo from "@/assets/cardperks-logo.png";
@@ -9,7 +9,6 @@ const navLinks = [
   { label: "Home", href: "/" },
   { label: "Vouchers", href: "/vouchers" },
   { label: "Know Your Cards", href: "/cards" },
-  { label: "My Cards", href: "/my-cards" },
   { label: "Banking", href: "/banking" },
   { label: "Perk AI", href: "/perk-ai" },
   { label: "Guides Hub", href: "/guides" },
@@ -100,6 +99,9 @@ export default function Navbar() {
             <Link to="/favorites" className="p-2 text-muted-foreground hover:text-gold transition-colors rounded-lg hover:bg-secondary/50">
               <Heart className="w-4 h-4" />
             </Link>
+            <Link to="/my-cards" className="p-2 text-muted-foreground hover:text-gold transition-colors rounded-lg hover:bg-secondary/50">
+              <Wallet className="w-4 h-4" />
+            </Link>
             <Link to="/dashboard" className="p-2 text-muted-foreground hover:text-gold transition-colors rounded-lg hover:bg-secondary/50">
               <Bell className="w-4 h-4" />
             </Link>
@@ -159,7 +161,8 @@ export default function Navbar() {
                 <button onClick={toggleTheme} className="p-2 text-muted-foreground hover:text-gold transition-colors">
                   {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                 </button>
-                <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="p-2 text-muted-foreground hover:text-gold transition-colors"><Heart className="w-5 h-5" /></Link>
+                <Link to="/favorites" onClick={() => setMobileOpen(false)} className="p-2 text-muted-foreground hover:text-gold transition-colors"><Heart className="w-5 h-5" /></Link>
+                <Link to="/my-cards" onClick={() => setMobileOpen(false)} className="p-2 text-muted-foreground hover:text-gold transition-colors"><Wallet className="w-5 h-5" /></Link>
                 <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="p-2 text-muted-foreground hover:text-gold transition-colors"><Bell className="w-5 h-5" /></Link>
               </div>
               <Link
