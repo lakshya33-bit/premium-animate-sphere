@@ -9,6 +9,7 @@ const navLinks = [
   { label: "Home", href: "/" },
   { label: "Vouchers", href: "/vouchers" },
   { label: "Know Your Cards", href: "/cards" },
+  { label: "Banking", href: "/banking" },
   { label: "Perk AI", href: "/perk-ai" },
   { label: "Guides Hub", href: "/guides" },
 ];
