@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { CreditCard, Star, TrendingUp, TrendingDown, IndianRupee, PieChart, ArrowUpDown, Receipt, ShoppingBag, UtensilsCrossed, Car, Fuel, Plane, Smartphone, Eye, ExternalLink, Check, X, Heart, ArrowRight, GitCompare } from "lucide-react";
 import { useFavorites } from "@/hooks/use-favorites";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import PageLayout from "@/components/PageLayout";
 import { cards, type CreditCard as CardType } from "@/data/cards";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart as RePieChart, Pie, Cell, LineChart, Line, CartesianGrid } from "recharts";
@@ -43,7 +43,6 @@ function CardQuickView({ card, open, onClose }: { card: CardType | null; open: b
       <DialogContent className="glass-card border-border/50 sm:max-w-lg">
         <DialogHeader>
           <div className="flex items-center gap-4">
-            {/* Card image thumbnail */}
             <div className="w-20 h-[50px] rounded-lg overflow-hidden shadow-lg shadow-black/30 flex-shrink-0">
               {card.image ? (
                 <img src={card.image} alt={card.name} className="w-full h-full object-cover" />
@@ -87,6 +86,14 @@ function CardQuickView({ card, open, onClose }: { card: CardType | null; open: b
 export default function KnowYourCards() {
   const [quickViewCard, setQuickViewCard] = useState<CardType | null>(null);
   const { toggle: toggleFav, isFav } = useFavorites("card");
+  const [compareList, setCompareList] = useState<string[]>([]);
+  const navigate = useNavigate();
+
+  const toggleCompare = (id: string) => {
+    setCompareList((prev) =>
+      prev.includes(id) ? prev.filter((c) => c !== id) : prev.length < 4 ? [...prev, id] : prev
+    );
+  };
 
   return (
     <PageLayout>
@@ -111,54 +118,63 @@ export default function KnowYourCards() {
 
             <TabsContent value="cards">
               <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
-                {cards.map((card, i) => (
-                  <motion.div key={card.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08, duration: 0.4 }} className="tilt-card glass-card rounded-2xl overflow-hidden">
-                    {/* Card image area */}
-                    <div className="relative p-5 pb-3">
-                      <div className="relative aspect-[1.586/1] rounded-xl overflow-hidden shadow-xl shadow-black/40 group/card">
-                        {card.image ? (
-                          <img src={card.image} alt={card.name} className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105" />
-                        ) : (
-                          <div className="w-full h-full" style={{ background: `linear-gradient(135deg, ${card.color}, ${card.color}66, ${card.color}33)` }}>
-                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.15),transparent_60%)]" />
-                            <div className="absolute bottom-4 left-5">
-                              <p className="text-xs text-white/50 font-medium tracking-widest uppercase">{card.issuer}</p>
-                              <p className="text-sm text-white/80 font-semibold mt-0.5">{card.name}</p>
+                {cards.map((card, i) => {
+                  const isSelected = compareList.includes(card.id);
+                  return (
+                    <motion.div key={card.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08, duration: 0.4 }} className={`tilt-card glass-card rounded-2xl overflow-hidden transition-all ${isSelected ? "ring-2 ring-gold/50 shadow-lg shadow-gold/10" : ""}`}>
+                      {/* Card image area */}
+                      <div className="relative p-5 pb-3">
+                        <div className="relative aspect-[1.586/1] rounded-xl overflow-hidden shadow-xl shadow-black/40 group/card">
+                          {card.image ? (
+                            <img src={card.image} alt={card.name} className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105" />
+                          ) : (
+                            <div className="w-full h-full" style={{ background: `linear-gradient(135deg, ${card.color}, ${card.color}66, ${card.color}33)` }}>
+                              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.15),transparent_60%)]" />
+                              <div className="absolute bottom-4 left-5">
+                                <p className="text-xs text-white/50 font-medium tracking-widest uppercase">{card.issuer}</p>
+                                <p className="text-sm text-white/80 font-semibold mt-0.5">{card.name}</p>
+                              </div>
+                              <div className="absolute top-4 right-5 text-white/40 text-[10px] font-medium tracking-wider uppercase">{card.network}</div>
                             </div>
-                            <div className="absolute top-4 right-5 text-white/40 text-[10px] font-medium tracking-wider uppercase">{card.network}</div>
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                        </div>
+                        <div className="absolute top-7 right-7 flex items-center gap-1 bg-background/70 backdrop-blur-md px-2 py-1 rounded-lg shadow-lg">
+                          <Star className="w-3 h-3 text-gold fill-gold" /><span className="text-xs font-medium">{card.rating}</span>
+                        </div>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); toggleFav(card.id); }}
+                          className="absolute top-7 left-7 p-1.5 rounded-lg bg-background/70 backdrop-blur-md shadow-lg hover:bg-background/90 transition-colors z-10"
+                        >
+                          <Heart className={`w-3.5 h-3.5 transition-colors ${isFav(card.id) ? "text-gold fill-gold" : "text-muted-foreground hover:text-gold"}`} />
+                        </button>
                       </div>
-                      {/* Rating badge */}
-                      <div className="absolute top-7 right-7 flex items-center gap-1 bg-background/70 backdrop-blur-md px-2 py-1 rounded-lg shadow-lg">
-                        <Star className="w-3 h-3 text-gold fill-gold" /><span className="text-xs font-medium">{card.rating}</span>
+                      <div className="px-5 pb-5">
+                        <h3 className="font-serif font-bold text-lg">{card.name}</h3>
+                        <p className="text-xs text-muted-foreground mb-3">{card.issuer} · {card.network} · {card.type}</p>
+                        <div className="grid grid-cols-3 gap-3 mb-4">
+                          <div className="text-center bg-secondary/30 rounded-xl py-2"><p className="text-[10px] text-muted-foreground uppercase">Fee</p><p className="text-sm font-semibold">{card.fee}</p></div>
+                          <div className="text-center bg-secondary/30 rounded-xl py-2"><p className="text-[10px] text-muted-foreground uppercase">Rewards</p><p className="text-sm font-semibold text-gold">{card.rewards}</p></div>
+                          <div className="text-center bg-secondary/30 rounded-xl py-2"><p className="text-[10px] text-muted-foreground uppercase">Lounge</p><p className="text-sm font-semibold">{card.lounge}</p></div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button onClick={() => setQuickViewCard(card)} className="flex-1 text-xs py-2 rounded-lg gold-outline-btn flex items-center justify-center gap-1"><Eye className="w-3 h-3" /> Quick View</button>
+                          <Link to={`/cards/${card.id}`} className="flex-1 text-xs py-2 rounded-lg gold-btn flex items-center justify-center gap-1"><ExternalLink className="w-3 h-3" /> Full View</Link>
+                          <button
+                            onClick={() => toggleCompare(card.id)}
+                            className={`text-xs py-2 px-3 rounded-lg transition-all flex items-center justify-center gap-1 ${
+                              isSelected
+                                ? "bg-gold text-background"
+                                : "glass-card hover:border-gold/30 text-muted-foreground hover:text-gold"
+                            }`}
+                          >
+                            {isSelected ? <Check className="w-3 h-3" /> : <GitCompare className="w-3 h-3" />}
+                          </button>
+                        </div>
                       </div>
-                      {/* Fav button */}
-                      <button
-                        onClick={(e) => { e.stopPropagation(); toggleFav(card.id); }}
-                        className="absolute top-7 left-7 p-1.5 rounded-lg bg-background/70 backdrop-blur-md shadow-lg hover:bg-background/90 transition-colors z-10"
-                      >
-                        <Heart className={`w-3.5 h-3.5 transition-colors ${isFav(card.id) ? "text-gold fill-gold" : "text-muted-foreground hover:text-gold"}`} />
-                      </button>
-                    </div>
-                    {/* Card info */}
-                    <div className="px-5 pb-5">
-                      <h3 className="font-serif font-bold text-lg">{card.name}</h3>
-                      <p className="text-xs text-muted-foreground mb-3">{card.issuer} · {card.network} · {card.type}</p>
-                      <div className="grid grid-cols-3 gap-3 mb-4">
-                        <div className="text-center bg-secondary/30 rounded-xl py-2"><p className="text-[10px] text-muted-foreground uppercase">Fee</p><p className="text-sm font-semibold">{card.fee}</p></div>
-                        <div className="text-center bg-secondary/30 rounded-xl py-2"><p className="text-[10px] text-muted-foreground uppercase">Rewards</p><p className="text-sm font-semibold text-gold">{card.rewards}</p></div>
-                        <div className="text-center bg-secondary/30 rounded-xl py-2"><p className="text-[10px] text-muted-foreground uppercase">Lounge</p><p className="text-sm font-semibold">{card.lounge}</p></div>
-                      </div>
-                      <div className="flex gap-2">
-                        <button onClick={() => setQuickViewCard(card)} className="flex-1 text-xs py-2 rounded-lg gold-outline-btn flex items-center justify-center gap-1"><Eye className="w-3 h-3" /> Quick View</button>
-                        <Link to={`/cards/${card.id}`} className="flex-1 text-xs py-2 rounded-lg gold-btn flex items-center justify-center gap-1"><ExternalLink className="w-3 h-3" /> Full View</Link>
-                        <Link to="/compare" className="text-xs py-2 px-3 rounded-lg glass-card hover:border-gold/30 transition-all flex items-center justify-center gap-1 text-muted-foreground hover:text-gold"><GitCompare className="w-3 h-3" /></Link>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  );
+                })}
               </div>
             </TabsContent>
 
@@ -249,8 +265,8 @@ export default function KnowYourCards() {
                       <tbody>
                         {recentTransactions.map((tx, i) => (
                           <tr key={i} className="border-b border-border/10 hover:bg-secondary/20 transition-colors">
-                            <td className="py-3 pr-4"><div className="text-sm font-medium">{tx.merchant}</div><div className="text-[10px] text-muted-foreground">{tx.date}</div></td>
-                            <td className="py-3 pr-4"><span className="text-xs px-2 py-0.5 rounded-full bg-secondary/60">{tx.category}</span></td>
+                            <td className="py-3 pr-4"><div><p className="text-sm font-medium">{tx.merchant}</p><p className="text-[10px] text-muted-foreground">{tx.date}</p></div></td>
+                            <td className="py-3 pr-4 text-xs text-muted-foreground">{tx.category}</td>
                             <td className="py-3 pr-4 text-xs text-muted-foreground">{tx.card}</td>
                             <td className="py-3 pr-4 text-right text-sm font-medium">₹{tx.amount.toLocaleString()}</td>
                             <td className="py-3 text-right text-xs text-gold font-medium">{tx.reward}</td>
@@ -265,6 +281,66 @@ export default function KnowYourCards() {
           </Tabs>
         </div>
       </section>
+
+      {/* Floating compare bar */}
+      <AnimatePresence>
+        {compareList.length > 0 && (
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
+          >
+            <div className="glass-card rounded-2xl border border-gold/20 shadow-2xl shadow-gold/10 px-6 py-4 flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                {compareList.map((id) => {
+                  const c = cards.find((card) => card.id === id);
+                  if (!c) return null;
+                  return (
+                    <div key={id} className="relative group/chip">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${c.color}20` }}>
+                        <CreditCard className="w-4 h-4" style={{ color: c.color }} />
+                      </div>
+                      <button
+                        onClick={() => toggleCompare(id)}
+                        className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-destructive flex items-center justify-center opacity-0 group-hover/chip:opacity-100 transition-opacity"
+                      >
+                        <X className="w-2.5 h-2.5 text-white" />
+                      </button>
+                    </div>
+                  );
+                })}
+                {Array.from({ length: Math.max(0, 2 - compareList.length) }).map((_, i) => (
+                  <div key={`empty-${i}`} className="w-10 h-10 rounded-xl border border-dashed border-border/50 flex items-center justify-center">
+                    <span className="text-[10px] text-muted-foreground">+</span>
+                  </div>
+                ))}
+              </div>
+              <div className="h-8 w-px bg-border/30" />
+              <div className="text-xs text-muted-foreground">
+                <span className="text-gold font-semibold">{compareList.length}</span>/4 selected
+              </div>
+              <button
+                onClick={() => navigate("/compare")}
+                disabled={compareList.length < 2}
+                className={`px-5 py-2.5 rounded-xl text-xs font-medium flex items-center gap-2 transition-all ${
+                  compareList.length >= 2
+                    ? "gold-btn"
+                    : "bg-secondary/50 text-muted-foreground cursor-not-allowed"
+                }`}
+              >
+                <GitCompare className="w-3.5 h-3.5" /> Compare Now
+              </button>
+              <button
+                onClick={() => setCompareList([])}
+                className="p-2 rounded-lg hover:bg-secondary/50 transition-colors text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <CardQuickView card={quickViewCard} open={!!quickViewCard} onClose={() => setQuickViewCard(null)} />
     </PageLayout>
