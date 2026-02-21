@@ -1,20 +1,45 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Clock, ArrowRight, Eye, ExternalLink, BookOpen, Sparkles, TrendingUp, Users, Search } from "lucide-react";
+import { Clock, ArrowRight, Eye, ExternalLink, BookOpen, Sparkles, TrendingUp, Users, Search, List } from "lucide-react";
 import { useFavorites } from "@/hooks/use-favorites";
 import FavoriteButton from "@/components/FavoriteButton";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import PageLayout from "@/components/PageLayout";
+import BackToTop from "@/components/BackToTop";
 import { guides, guideCategories, type Guide } from "@/data/guides";
+
+function extractHeadings(content: string[]): string[] {
+  const headings: string[] = [];
+  content.forEach((section) => {
+    section.split("\n").forEach((line) => {
+      if (line.startsWith("## ")) headings.push(line.replace("## ", ""));
+    });
+  });
+  return headings;
+}
+
+function getReadDepth(readTime: string): string {
+  const mins = parseInt(readTime);
+  if (mins <= 6) return "Quick read";
+  if (mins >= 10) return "Deep dive";
+  return "";
+}
 
 function GuideQuickView({ guide, open, onClose }: { guide: Guide | null; open: boolean; onClose: () => void }) {
   if (!guide) return null;
+  const headings = extractHeadings(guide.content);
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="border-0 bg-transparent shadow-none p-0 sm:max-w-lg max-h-[85vh] overflow-hidden">
-        <div className="glass-card rounded-3xl border border-border/30 overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+          className="glass-card rounded-3xl border border-border/30 overflow-hidden"
+        >
           {/* Header with gradient */}
           <div className="relative p-6 pb-5" style={{ background: `linear-gradient(135deg, ${guide.color}10, transparent)` }}>
             <div className="flex items-start gap-4">
@@ -33,6 +58,24 @@ function GuideQuickView({ guide, open, onClose }: { guide: Guide | null; open: b
 
           <div className="px-6 pb-6 space-y-4 max-h-[50vh] overflow-y-auto">
             <p className="text-sm text-muted-foreground leading-relaxed">{guide.description}</p>
+
+            {/* Table of Contents preview */}
+            {headings.length > 0 && (
+              <div className="rounded-xl p-4 border border-border/20 bg-secondary/20">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-2 flex items-center gap-1.5">
+                  <List className="w-3 h-3" /> What's Inside
+                </p>
+                <div className="space-y-1.5">
+                  {headings.map((h, i) => (
+                    <div key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span className="w-4 h-4 rounded-md bg-gold/10 text-gold flex items-center justify-center text-[9px] font-bold flex-shrink-0">{i + 1}</span>
+                      <span>{h}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="rounded-xl p-4 text-sm text-muted-foreground leading-relaxed border border-border/20" style={{ background: `${guide.color}05` }}>
               {guide.content[0]}
             </div>
@@ -48,7 +91,7 @@ function GuideQuickView({ guide, open, onClose }: { guide: Guide | null; open: b
               Read Full Guide <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
-        </div>
+        </motion.div>
       </DialogContent>
     </Dialog>
   );
@@ -60,6 +103,12 @@ export default function GuidesHub() {
   const [quickViewGuide, setQuickViewGuide] = useState<Guide | null>(null);
   const { toggle: toggleFav, isFav } = useFavorites("guide");
 
+  useEffect(() => {
+    document.title = "Guides Hub | CardPerks";
+  }, []);
+
+  const categoryCount = (cat: string) => cat === "All" ? guides.length : guides.filter((g) => g.category === cat).length;
+
   const filtered = guides.filter((g) => {
     const matchCategory = activeCategory === "All" || g.category === activeCategory;
     const matchSearch = !search || g.title.toLowerCase().includes(search.toLowerCase()) || g.tags.some((t) => t.toLowerCase().includes(search.toLowerCase()));
@@ -70,8 +119,11 @@ export default function GuidesHub() {
 
   return (
     <PageLayout>
-      <section className="py-16">
-        <div className="container mx-auto px-4">
+      <section className="py-16 relative">
+        {/* Gold gradient accent */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-[radial-gradient(ellipse_at_center,hsl(var(--gold)/0.08),transparent_70%)] pointer-events-none" />
+
+        <div className="container mx-auto px-4 relative">
           {/* Premium Hero */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-14">
             <motion.div
@@ -135,7 +187,7 @@ export default function GuidesHub() {
             </div>
           </motion.div>
 
-          {/* Category filter */}
+          {/* Category filter with counts */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="flex gap-2 flex-wrap justify-center mb-12">
             {guideCategories.map((cat) => (
               <button
@@ -147,7 +199,7 @@ export default function GuidesHub() {
                     : "glass-card text-muted-foreground hover:text-foreground hover:border-gold/20"
                 }`}
               >
-                {cat}
+                {cat} <span className="opacity-60">({categoryCount(cat)})</span>
               </button>
             ))}
           </motion.div>
@@ -193,8 +245,12 @@ export default function GuidesHub() {
 
                       <div className="px-8 pb-7">
                         {/* Meta */}
-                        <div className="flex items-center gap-4 mb-5 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-4 mb-5 text-xs text-muted-foreground flex-wrap">
                           <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {guide.readTime} read</span>
+                          <span className="flex items-center gap-1.5"><List className="w-3.5 h-3.5" /> {guide.content.length} sections</span>
+                          {getReadDepth(guide.readTime) && (
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-gold/10 text-gold font-medium">{getReadDepth(guide.readTime)}</span>
+                          )}
                           <span>·</span>
                           <span className="font-medium">{guide.author}</span>
                           <span>·</span>
@@ -254,8 +310,12 @@ export default function GuidesHub() {
                       <h3 className="font-serif text-base font-bold mb-2 leading-snug group-hover:text-gold transition-colors duration-300">{guide.title}</h3>
                       <p className="text-xs text-muted-foreground leading-relaxed mb-4 flex-1">{guide.description}</p>
 
-                      <div className="flex items-center gap-3 mb-4 text-[10px] text-muted-foreground">
+                      <div className="flex items-center gap-3 mb-4 text-[10px] text-muted-foreground flex-wrap">
                         <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {guide.readTime}</span>
+                        <span className="flex items-center gap-1"><List className="w-3 h-3" /> {guide.content.length} sections</span>
+                        {getReadDepth(guide.readTime) && (
+                          <span className="px-2 py-0.5 rounded-full bg-gold/10 text-gold font-medium text-[9px]">{getReadDepth(guide.readTime)}</span>
+                        )}
                         <span>·</span>
                         <span className="font-medium">{guide.author}</span>
                       </div>
@@ -284,6 +344,7 @@ export default function GuidesHub() {
       </section>
 
       <GuideQuickView guide={quickViewGuide} open={!!quickViewGuide} onClose={() => setQuickViewGuide(null)} />
+      <BackToTop />
     </PageLayout>
   );
 }
