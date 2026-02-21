@@ -6,6 +6,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Vouchers from "./pages/Vouchers";
+import KnowYourCards from "./pages/KnowYourCards";
+import PerkAI from "./pages/PerkAI";
+import GuidesHub from "./pages/GuidesHub";
+import About from "./pages/About";
+import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,6 +26,12 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/vouchers" element={<Vouchers />} />
+          <Route path="/cards" element={<KnowYourCards />} />
+          <Route path="/perk-ai" element={<PerkAI />} />
+          <Route path="/guides" element={<GuidesHub />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/privacy" element={<Privacy />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
