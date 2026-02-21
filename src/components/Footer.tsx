@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { ArrowRight } from "lucide-react";
+import logo from "@/assets/cardperks-logo.png";
 
 export default function Footer() {
   return (
@@ -10,12 +11,7 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center font-serif font-bold text-background text-sm">
-                CP
-              </div>
-              <span className="font-serif text-xl font-bold">
-                Card<span className="text-gold">Perks</span>
-              </span>
+              <img src={logo} alt="CardPerks" className="h-9 w-auto rounded-lg" />
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
               India's premier credit card perks and voucher tracking platform. Track rates, compare cards, maximize savings.
