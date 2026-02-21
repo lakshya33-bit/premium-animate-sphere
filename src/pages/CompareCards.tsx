@@ -217,7 +217,7 @@ export default function CompareCards() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16 text-muted-foreground">
               <CreditCard className="w-12 h-12 mx-auto mb-4 opacity-30" />
               <p className="text-lg font-serif">Select at least 2 cards to compare</p>
-              <p className="text-sm mt-2">Choose from {cards.length} credit cards above</p>
+              <p className="text-sm mt-2">Pick any 2–{MAX_CARDS} from {cards.length} available cards above</p>
             </motion.div>
           )}
         </div>
