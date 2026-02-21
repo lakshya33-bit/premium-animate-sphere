@@ -3,8 +3,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   CreditCard, Star, Plus, ArrowRight, Wallet, X, Eye,
   GitCompare, TrendingUp, IndianRupee, Sparkles, BarChart3, Calendar,
-  ShoppingBag, UtensilsCrossed, Fuel, Plane, Trash2
+  ShoppingBag, UtensilsCrossed, Fuel, Plane, Trash2, Check
 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
 import PageLayout from "@/components/PageLayout";
 import { useMyCards } from "@/hooks/use-my-cards";
@@ -108,10 +109,15 @@ export default function MyCards() {
                 <CreditCard className="w-10 h-10 text-gold/40" />
               </div>
               <p className="font-serif text-2xl font-bold mb-3">No cards added yet</p>
-              <p className="text-sm text-muted-foreground mb-8 max-w-sm mx-auto">Browse our card catalog and tap "Add to My Cards" to build your wallet.</p>
-              <Link to="/cards" className="gold-btn px-8 py-3.5 rounded-xl text-sm inline-flex items-center gap-2 shadow-lg shadow-gold/15">
-                Browse Cards <ArrowRight className="w-4 h-4" />
-              </Link>
+              <p className="text-sm text-muted-foreground mb-8 max-w-sm mx-auto">Pick cards from our catalog to build your wallet.</p>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button className="gold-btn px-8 py-3.5 rounded-xl text-sm inline-flex items-center gap-2 shadow-lg shadow-gold/15">
+                    <Plus className="w-4 h-4" /> Add Cards
+                  </button>
+                </DialogTrigger>
+                <AddCardsDialogContent isMyCard={isMyCard} toggleMyCard={toggleMyCard} />
+              </Dialog>
             </motion.div>
           ) : (
             <>
@@ -285,15 +291,20 @@ export default function MyCards() {
 
                     {/* Add more card */}
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
-                      <Link to="/cards" className="h-full min-h-[200px] glass-card rounded-[22px] flex flex-col items-center justify-center gap-4 hover:border-gold/30 transition-all group block border border-dashed border-border/40 hover:border-solid">
-                        <div className="w-14 h-14 rounded-2xl bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-all group-hover:scale-110 duration-300">
-                          <Plus className="w-6 h-6 text-gold" />
-                        </div>
-                        <div className="text-center">
-                          <span className="text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors block">Add More Cards</span>
-                          <span className="text-[10px] text-muted-foreground/60 mt-1 block">Browse our catalog</span>
-                        </div>
-                      </Link>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <button className="h-full min-h-[200px] w-full glass-card rounded-[22px] flex flex-col items-center justify-center gap-4 hover:border-gold/30 transition-all group border border-dashed border-border/40 hover:border-solid cursor-pointer">
+                            <div className="w-14 h-14 rounded-2xl bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-all group-hover:scale-110 duration-300">
+                              <Plus className="w-6 h-6 text-gold" />
+                            </div>
+                            <div className="text-center">
+                              <span className="text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors block">Add More Cards</span>
+                              <span className="text-[10px] text-muted-foreground/60 mt-1 block">Pick from catalog</span>
+                            </div>
+                          </button>
+                        </DialogTrigger>
+                        <AddCardsDialogContent isMyCard={isMyCard} toggleMyCard={toggleMyCard} />
+                      </Dialog>
                     </motion.div>
                   </div>
                 </TabsContent>
@@ -451,5 +462,44 @@ export default function MyCards() {
         </div>
       </section>
     </PageLayout>
+  );
+}
+
+function AddCardsDialogContent({ isMyCard, toggleMyCard }: { isMyCard: (id: string) => boolean; toggleMyCard: (id: string) => void }) {
+  return (
+    <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+      <DialogHeader>
+        <DialogTitle className="font-serif text-xl">Add Cards to Wallet</DialogTitle>
+      </DialogHeader>
+      <div className="space-y-2 mt-2">
+        {cards.map((card) => {
+          const added = isMyCard(card.id);
+          return (
+            <button
+              key={card.id}
+              onClick={() => toggleMyCard(card.id)}
+              className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all ${added ? "border-gold/40 bg-gold/5" : "border-border/30 hover:border-border/60 bg-secondary/10"}`}
+            >
+              <div className="w-14 h-9 rounded-lg overflow-hidden flex-shrink-0">
+                {card.image ? (
+                  <img src={card.image} alt={card.name} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: card.color + "22" }}>
+                    <CreditCard className="w-5 h-5" style={{ color: card.color }} />
+                  </div>
+                )}
+              </div>
+              <div className="flex-1 text-left min-w-0">
+                <p className="text-sm font-semibold truncate">{card.name}</p>
+                <p className="text-[10px] text-muted-foreground">{card.issuer} · {card.fee}/yr</p>
+              </div>
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${added ? "bg-gold text-background" : "bg-secondary/40"}`}>
+                {added ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4 text-muted-foreground" />}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </DialogContent>
   );
 }
