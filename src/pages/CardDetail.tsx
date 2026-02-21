@@ -1,16 +1,68 @@
+import { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Star, CreditCard, Shield, Gift, TrendingUp, Check, Wallet, ChevronRight, Home } from "lucide-react";
+import { ArrowLeft, Star, CreditCard, Shield, Gift, TrendingUp, Check, Wallet, ChevronRight, Home, Heart, Share2, ThumbsUp, ThumbsDown, Users, Plane, ShoppingBag, Award } from "lucide-react";
 import PageLayout from "@/components/PageLayout";
+import BackToTop from "@/components/BackToTop";
+import FavoriteButton from "@/components/FavoriteButton";
 import { getCardById, cards } from "@/data/cards";
 import { useMyCards } from "@/hooks/use-my-cards";
+import { useFavorites } from "@/hooks/use-favorites";
+import { toast } from "sonner";
+
+const bestForIcons: Record<string, typeof Users> = {
+  "Ultra HNI customers": Award,
+  "Luxury travelers": Plane,
+  "Taj enthusiasts": Star,
+  "Fashion shoppers": ShoppingBag,
+  "Young professionals": Users,
+  "Online spenders": ShoppingBag,
+  "Frequent travelers": Plane,
+  "International travelers": Plane,
+  "Miles collectors": Plane,
+  "Emirates flyers": Plane,
+  "NRI banking": Users,
+  "Premium banking customers": Award,
+  "MakeMyTrip users": Plane,
+  "Budget travelers": Plane,
+  "Shoppers Stop loyalists": ShoppingBag,
+  "Fashion lovers": ShoppingBag,
+  "Budget shoppers": ShoppingBag,
+};
+
+function generateProsAndCons(card: NonNullable<ReturnType<typeof getCardById>>) {
+  const pros: string[] = [];
+  const cons: string[] = [];
+  // Pros
+  if (card.lounge === "Unlimited") pros.push("Unlimited lounge access");
+  else if (card.lounge.includes("8")) pros.push("8 lounge visits/quarter");
+  else if (card.lounge.includes("4")) pros.push("4 lounge visits/quarter");
+  if (parseFloat(card.rewards) >= 3) pros.push(`${card.rewards} reward value`);
+  if (parseFloat(card.forexMarkup) <= 2) pros.push(`Low ${card.forexMarkup} forex markup`);
+  if (card.insurance.length >= 3) pros.push("Comprehensive insurance coverage");
+  if (card.welcomeBonus) pros.push(`Welcome bonus: ${card.welcomeBonus}`);
+  // Cons
+  const fee = parseInt(card.fee.replace(/[₹,]/g, ""));
+  if (fee >= 10000) cons.push(`High annual fee of ${card.fee}`);
+  const income = parseInt(card.minIncome.replace(/[₹L+/year,]/g, ""));
+  if (income >= 20) cons.push(`Requires ${card.minIncome} income`);
+  if (parseFloat(card.forexMarkup) >= 3) cons.push(`${card.forexMarkup} forex markup`);
+  if (card.lounge.includes("2/year")) cons.push("Limited lounge access (2/year)");
+  return { pros: pros.slice(0, 4), cons: cons.slice(0, 3) };
+}
 
 export default function CardDetail() {
   const { id } = useParams<{ id: string }>();
   const card = getCardById(id || "");
   const { toggle: toggleMyCard, has: isMyCard } = useMyCards();
+  const { toggle: toggleFav, isFav } = useFavorites("card");
 
   const similarCards = cards.filter((c) => c.id !== id).slice(0, 3);
+
+  useEffect(() => {
+    if (card) document.title = `${card.name} | CardPerks`;
+    return () => { document.title = "CardPerks"; };
+  }, [card]);
 
   if (!card) {
     return (
@@ -22,6 +74,17 @@ export default function CardDetail() {
       </PageLayout>
     );
   }
+
+  const { pros, cons } = generateProsAndCons(card);
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast.success("Link copied to clipboard!");
+    } catch {
+      toast.error("Failed to copy link");
+    }
+  };
 
   return (
     <PageLayout>
@@ -36,8 +99,8 @@ export default function CardDetail() {
             <span className="text-foreground">{card.name}</span>
           </nav>
 
-          {/* Header */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass-card rounded-2xl overflow-hidden mb-8">
+          {/* Header with brand-color tint */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass-card rounded-2xl overflow-hidden mb-8" style={{ background: `linear-gradient(135deg, ${card.color}08, ${card.color}05, transparent)` }}>
             <div className="p-6 sm:p-8">
               <div className="flex flex-col sm:flex-row items-start gap-6">
                 {/* Card image */}
@@ -65,14 +128,22 @@ export default function CardDetail() {
                 </div>
                 {/* Card info */}
                 <div className="flex-1">
-                  <p className="text-xs text-muted-foreground mb-1">{card.issuer} · {card.type}</p>
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-xs text-muted-foreground">{card.issuer} · {card.type}</p>
+                    <div className="flex items-center gap-2">
+                      <FavoriteButton isFav={isFav(card.id)} onToggle={() => toggleFav(card.id)} className="bg-secondary/50 hover:bg-secondary/80" />
+                      <button onClick={handleShare} className="w-8 h-8 rounded-lg bg-secondary/50 hover:bg-secondary/80 flex items-center justify-center transition-colors" title="Share">
+                        <Share2 className="w-3.5 h-3.5 text-muted-foreground" />
+                      </button>
+                    </div>
+                  </div>
                   <h1 className="font-serif text-2xl sm:text-3xl font-bold mb-3">{card.name}</h1>
                   <div className="flex items-center gap-2 mb-4">
                     <div className="flex items-center gap-1.5 bg-gold/10 px-3 py-1.5 rounded-xl">
                       <Star className="w-4 h-4 text-gold fill-gold" />
                       <span className="text-sm font-semibold">{card.rating}</span>
                     </div>
-                    <span className="text-xs text-muted-foreground">{card.network} Network</span>
+                    <span className="text-xs px-2.5 py-1 rounded-full bg-secondary/50 text-muted-foreground">{card.network}</span>
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                     {[
@@ -87,15 +158,63 @@ export default function CardDetail() {
                       </div>
                     ))}
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {card.bestFor.map((b) => (
-                      <span key={b} className="text-xs px-3 py-1.5 rounded-full bg-gold/10 text-gold font-medium">{b}</span>
-                    ))}
-                  </div>
                 </div>
               </div>
             </div>
           </motion.div>
+
+          {/* Best For - Feature Cards */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-8">
+            <h3 className="font-serif text-lg font-semibold mb-4 flex items-center gap-2"><Users className="w-4 h-4 text-gold" /> Best For</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {card.bestFor.map((b) => {
+                const Icon = bestForIcons[b] || Users;
+                return (
+                  <div key={b} className="glass-card rounded-xl p-4 flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${card.color}15` }}>
+                      <Icon className="w-4 h-4" style={{ color: card.color }} />
+                    </div>
+                    <span className="text-sm font-medium">{b}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+
+          {/* Why This Card? */}
+          {(pros.length > 0 || cons.length > 0) && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }} className="glass-card rounded-2xl p-6 mb-8">
+              <h3 className="font-serif text-lg font-semibold mb-4">Why This Card?</h3>
+              <div className="grid sm:grid-cols-2 gap-6">
+                {pros.length > 0 && (
+                  <div>
+                    <p className="text-xs text-green-400 font-semibold uppercase tracking-wider mb-3 flex items-center gap-1.5"><ThumbsUp className="w-3 h-3" /> Pros</p>
+                    <div className="space-y-2">
+                      {pros.map((p) => (
+                        <div key={p} className="flex items-start gap-2 text-sm">
+                          <Check className="w-3.5 h-3.5 text-green-400 flex-shrink-0 mt-0.5" />
+                          <span>{p}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {cons.length > 0 && (
+                  <div>
+                    <p className="text-xs text-red-400 font-semibold uppercase tracking-wider mb-3 flex items-center gap-1.5"><ThumbsDown className="w-3 h-3" /> Cons</p>
+                    <div className="space-y-2">
+                      {cons.map((c) => (
+                        <div key={c} className="flex items-start gap-2 text-sm">
+                          <span className="w-3.5 h-3.5 flex items-center justify-center text-red-400 flex-shrink-0 mt-0.5">–</span>
+                          <span>{c}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
 
           {/* Details grid */}
           <div className="grid md:grid-cols-2 gap-6 mb-8">
@@ -225,6 +344,7 @@ export default function CardDetail() {
           </motion.div>
         </div>
       </section>
+      <BackToTop />
     </PageLayout>
   );
 }
