@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 
-type FavType = "card" | "voucher" | "guide";
+type FavType = "card" | "voucher" | "guide" | "banking";
 
 function getKey(type: FavType) {
   return `cardperks_favs_${type}`;
