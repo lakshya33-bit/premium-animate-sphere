@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CreditCard, Star, TrendingUp, TrendingDown, IndianRupee, PieChart, ArrowUpDown, Receipt, ShoppingBag, UtensilsCrossed, Car, Fuel, Plane, Smartphone, Eye, ExternalLink, Check, X, Heart, ArrowRight, GitCompare } from "lucide-react";
 import { useFavorites } from "@/hooks/use-favorites";
+import FavoriteButton from "@/components/FavoriteButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Link, useNavigate } from "react-router-dom";
@@ -142,12 +143,13 @@ export default function KnowYourCards() {
                         <div className="absolute top-7 right-7 flex items-center gap-1 bg-background/70 backdrop-blur-md px-2 py-1 rounded-lg shadow-lg">
                           <Star className="w-3 h-3 text-gold fill-gold" /><span className="text-xs font-medium">{card.rating}</span>
                         </div>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); toggleFav(card.id); }}
-                          className="absolute top-7 left-7 p-1.5 rounded-lg bg-background/70 backdrop-blur-md shadow-lg hover:bg-background/90 transition-colors z-10"
-                        >
-                          <Heart className={`w-3.5 h-3.5 transition-colors ${isFav(card.id) ? "text-gold fill-gold" : "text-muted-foreground hover:text-gold"}`} />
-                        </button>
+                        <div className="absolute top-7 left-7 z-10">
+                          <FavoriteButton
+                            isFav={isFav(card.id)}
+                            onToggle={() => toggleFav(card.id)}
+                            className="bg-background/70 backdrop-blur-md shadow-lg hover:bg-background/90"
+                          />
+                        </div>
                       </div>
                       <div className="px-5 pb-5">
                         <h3 className="font-serif font-bold text-lg">{card.name}</h3>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Clock, ArrowRight, Eye, ExternalLink, Heart } from "lucide-react";
 import { useFavorites } from "@/hooks/use-favorites";
+import FavoriteButton from "@/components/FavoriteButton";
 import { Link } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import PageLayout from "@/components/PageLayout";
@@ -69,9 +70,7 @@ export default function GuidesHub() {
               {featured.map((guide, i) => (
                 <motion.div key={guide.slug} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1, duration: 0.4 }} className="glass-card rounded-2xl p-8 group relative overflow-hidden">
                   <div className="absolute top-4 right-4 flex items-center gap-2">
-                    <button onClick={(e) => { e.stopPropagation(); toggleFav(guide.slug); }} className="p-1.5 rounded-lg hover:bg-secondary/50 transition-colors z-10">
-                      <Heart className={`w-4 h-4 transition-colors ${isFav(guide.slug) ? "text-gold fill-gold" : "text-muted-foreground hover:text-gold"}`} />
-                    </button>
+                    <FavoriteButton isFav={isFav(guide.slug)} onToggle={() => toggleFav(guide.slug)} className="hover:bg-secondary/50" />
                     <span className="px-2.5 py-1 rounded-full bg-gold/20 text-gold text-[10px] font-medium">Featured</span>
                   </div>
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-5" style={{ backgroundColor: `${guide.color}15` }}>
@@ -96,9 +95,9 @@ export default function GuidesHub() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {rest.map((guide, i) => (
               <motion.div key={guide.slug} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08, duration: 0.4 }} className="tilt-card glass-card rounded-2xl p-6 group relative">
-                <button onClick={(e) => { e.stopPropagation(); toggleFav(guide.slug); }} className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-secondary/50 transition-colors z-10">
-                  <Heart className={`w-4 h-4 transition-colors ${isFav(guide.slug) ? "text-gold fill-gold" : "text-muted-foreground hover:text-gold"}`} />
-                </button>
+                <div className="absolute top-4 right-4 z-10">
+                  <FavoriteButton isFav={isFav(guide.slug)} onToggle={() => toggleFav(guide.slug)} className="hover:bg-secondary/50" />
+                </div>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${guide.color}15` }}>
                     <guide.icon className="w-4 h-4" style={{ color: guide.color }} />
