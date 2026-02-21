@@ -29,39 +29,56 @@ export default function CardDetail() {
 
           {/* Header */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass-card rounded-2xl overflow-hidden mb-8">
-            <div className="h-32 sm:h-40 relative" style={{ background: `linear-gradient(135deg, ${card.color}, ${card.color}66)` }}>
-              <div className="absolute inset-0 bg-gradient-to-t from-card/90 to-transparent" />
-              <div className="absolute bottom-5 left-6 right-6 flex items-end justify-between">
-                <div>
-                  <p className="text-xs text-foreground/70 mb-1">{card.issuer} · {card.type}</p>
-                  <h1 className="font-serif text-2xl sm:text-3xl font-bold">{card.name}</h1>
-                </div>
-                <div className="flex items-center gap-1.5 bg-background/30 backdrop-blur px-3 py-1.5 rounded-xl">
-                  <Star className="w-4 h-4 text-gold fill-gold" />
-                  <span className="text-sm font-semibold">{card.rating}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-                {[
-                  { label: "Annual Fee", value: card.fee },
-                  { label: "Reward Rate", value: card.rewards },
-                  { label: "Lounge Access", value: card.lounge },
-                  { label: "Network", value: card.network },
-                ].map((s) => (
-                  <div key={s.label} className="text-center bg-secondary/30 rounded-xl p-3">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{s.label}</p>
-                    <p className="text-sm font-semibold mt-1 text-gold">{s.value}</p>
+            <div className="p-6 sm:p-8">
+              <div className="flex flex-col sm:flex-row items-start gap-6">
+                {/* Card image */}
+                <div className="w-full sm:w-64 flex-shrink-0">
+                  <div className="relative aspect-[1.586/1] rounded-xl overflow-hidden shadow-2xl shadow-black/50">
+                    {card.image ? (
+                      <img src={card.image} alt={card.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full" style={{ background: `linear-gradient(135deg, ${card.color}, ${card.color}66, ${card.color}33)` }}>
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.15),transparent_60%)]" />
+                        <div className="absolute bottom-4 left-5">
+                          <p className="text-xs text-white/50 font-medium tracking-widest uppercase">{card.issuer}</p>
+                          <p className="text-sm text-white/80 font-semibold mt-0.5">{card.name}</p>
+                        </div>
+                        <div className="absolute top-4 right-5 text-white/40 text-[10px] font-medium tracking-wider uppercase">{card.network}</div>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent pointer-events-none" />
                   </div>
-                ))}
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {card.bestFor.map((b) => (
-                  <span key={b} className="text-xs px-3 py-1.5 rounded-full bg-gold/10 text-gold font-medium">{b}</span>
-                ))}
+                </div>
+                {/* Card info */}
+                <div className="flex-1">
+                  <p className="text-xs text-muted-foreground mb-1">{card.issuer} · {card.type}</p>
+                  <h1 className="font-serif text-2xl sm:text-3xl font-bold mb-3">{card.name}</h1>
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="flex items-center gap-1.5 bg-gold/10 px-3 py-1.5 rounded-xl">
+                      <Star className="w-4 h-4 text-gold fill-gold" />
+                      <span className="text-sm font-semibold">{card.rating}</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground">{card.network} Network</span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                    {[
+                      { label: "Annual Fee", value: card.fee },
+                      { label: "Reward Rate", value: card.rewards },
+                      { label: "Lounge Access", value: card.lounge },
+                      { label: "Forex Markup", value: card.forexMarkup },
+                    ].map((s) => (
+                      <div key={s.label} className="text-center bg-secondary/30 rounded-xl p-3">
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{s.label}</p>
+                        <p className="text-sm font-semibold mt-1 text-gold">{s.value}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {card.bestFor.map((b) => (
+                      <span key={b} className="text-xs px-3 py-1.5 rounded-full bg-gold/10 text-gold font-medium">{b}</span>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </motion.div>

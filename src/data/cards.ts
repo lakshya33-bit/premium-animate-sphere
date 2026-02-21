@@ -8,6 +8,7 @@ export interface CreditCard {
   lounge: string;
   vouchers: string[];
   color: string;
+  image?: string;
   perks: string[];
   issuer: string;
   type: string;
