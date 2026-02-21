@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   CreditCard, Star, Plus, ArrowRight, Wallet, X, Eye,
   GitCompare, TrendingUp, IndianRupee, Sparkles, BarChart3, Calendar,
-  ShoppingBag, UtensilsCrossed, Fuel, Plane, Trash2, Check
+  ShoppingBag, UtensilsCrossed, Fuel, Plane, Trash2, Check, Search, Receipt
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import PageLayout from "@/components/PageLayout";
+import BackToTop from "@/components/BackToTop";
 import { useMyCards } from "@/hooks/use-my-cards";
 import FavoriteButton from "@/components/FavoriteButton";
 import { useFavorites } from "@/hooks/use-favorites";
@@ -17,7 +19,8 @@ import { useExpenses, CATEGORIES } from "@/hooks/use-expenses";
 import AddExpenseDialog from "@/components/AddExpenseDialog";
 import {
   ResponsiveContainer, PieChart as RePieChart, Pie, Cell,
-  BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Area, AreaChart
+  BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Area, AreaChart,
+  Legend
 } from "recharts";
 
 const monthlyTrend = [
@@ -49,14 +52,23 @@ const categoryIcons: Record<string, typeof ShoppingBag> = {
   travel: Plane,
 };
 
+function parseRewardPct(rewardStr: string): number {
+  const match = rewardStr.match(/([\d.]+)%/);
+  return match ? parseFloat(match[1]) / 100 : 0.033;
+}
+
 export default function MyCards() {
   const { has: isMyCard, toggle: toggleMyCard } = useMyCards();
   const { isFav, toggle: toggleFav } = useFavorites("card");
   const { expenses, addExpense, deleteExpense, getByCard, totalByCard } = useExpenses();
   const myCards = cards.filter((c) => isMyCard(c.id));
 
+  useEffect(() => {
+    document.title = "My Wallet | CardPerks";
+  }, []);
+
   const totalSpend = myCards.reduce((s, c) => s + totalByCard(c.id), 0);
-  const totalRewards = Math.round(totalSpend * 0.033); // ~3.3% avg reward
+  const totalRewards = Math.round(totalSpend * 0.033);
 
   // Category breakdown from real expenses
   const catMap = new Map<string, number>();
@@ -72,41 +84,77 @@ export default function MyCards() {
   }));
   const totalCatSpend = categoryBreakdown.reduce((s, c) => s + c.value, 0);
 
+  // Group expenses by date
+  const myExpenses = useMemo(() =>
+    expenses.filter((e) => myCards.some((c) => c.id === e.cardId)),
+    [expenses, myCards]
+  );
+  const groupedExpenses = useMemo(() => {
+    const groups: Record<string, typeof myExpenses> = {};
+    myExpenses.forEach((exp) => {
+      if (!groups[exp.date]) groups[exp.date] = [];
+      groups[exp.date].push(exp);
+    });
+    return Object.entries(groups).sort(([a], [b]) => b.localeCompare(a));
+  }, [myExpenses]);
+
   return (
     <PageLayout>
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          {/* Premium Hero */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-14">
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.1, type: "spring" }}
-              className="relative w-20 h-20 mx-auto mb-6"
-            >
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-gold/25 to-gold/5 shadow-2xl shadow-gold/15" />
-              <div className="absolute inset-0 rounded-2xl flex items-center justify-center">
-                <Wallet className="w-8 h-8 text-gold" />
+      <section className="py-16 relative">
+        {/* Gold radial gradient accent */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[radial-gradient(ellipse_at_center,hsl(var(--gold)/0.08),transparent_70%)] pointer-events-none" />
+
+        <div className="container mx-auto px-4 relative">
+          {/* Hero — Left-aligned */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-14">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+              <div>
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.1, type: "spring" }}
+                  className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gold/25 to-gold/5 flex items-center justify-center mb-5 shadow-lg shadow-gold/10"
+                >
+                  <Wallet className="w-7 h-7 text-gold" />
+                </motion.div>
+                <p className="text-sm font-semibold tracking-[0.2em] uppercase text-gold mb-3">Your Wallet</p>
+                <h1 className="font-serif text-4xl sm:text-5xl font-bold mb-3 tracking-tight">
+                  My <span className="gold-gradient">Cards</span>
+                </h1>
+                <p className="text-muted-foreground max-w-lg text-sm leading-relaxed">
+                  Track your cards, monitor spending, and maximize rewards — all in one place.
+                </p>
               </div>
-              <motion.div
-                animate={{ scale: [1, 1.15, 1], opacity: [0.2, 0.5, 0.2] }}
-                transition={{ repeat: Infinity, duration: 3 }}
-                className="absolute -inset-2 rounded-2xl border border-gold/15"
-              />
-            </motion.div>
-            <p className="text-sm font-semibold tracking-[0.2em] uppercase text-gold mb-4">Your Wallet</p>
-            <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold mb-5 tracking-tight">
-              My <span className="gold-gradient">Cards</span>
-            </h1>
-            <p className="text-muted-foreground max-w-lg mx-auto text-sm leading-relaxed">
-              Track your cards, monitor spending, and maximize rewards — all in one place.
-            </p>
+              {myCards.length > 0 && (
+                <div className="flex items-center gap-3 flex-wrap">
+                  <div className="glass-card rounded-2xl px-5 py-3 flex items-center gap-3 border border-gold/10">
+                    <div className="w-10 h-10 rounded-xl bg-gold/15 flex items-center justify-center">
+                      <CreditCard className="w-4 h-4 text-gold" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-serif font-bold text-gold">{myCards.length}</p>
+                      <p className="text-[10px] text-muted-foreground">Cards Added</p>
+                    </div>
+                  </div>
+                  {totalSpend > 0 && (
+                    <div className="glass-card rounded-2xl px-5 py-3 flex items-center gap-3 border border-border/20">
+                      <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center">
+                        <IndianRupee className="w-4 h-4 text-gold" />
+                      </div>
+                      <div>
+                        <p className="text-2xl font-serif font-bold">₹{(totalSpend / 1000).toFixed(1)}K</p>
+                        <p className="text-[10px] text-muted-foreground">Total Spend</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </motion.div>
 
           {myCards.length === 0 ? (
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-24">
               <div className="relative w-32 h-28 mx-auto mb-8">
-                {/* Wallet body */}
                 <motion.div
                   className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-16 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20 flex items-center justify-center"
                   initial={{ rotateX: 0 }}
@@ -116,7 +164,6 @@ export default function MyCards() {
                 >
                   <Wallet className="w-8 h-8 text-gold/40" />
                 </motion.div>
-                {/* Peeking cards */}
                 {[0, 1, 2].map((idx) => (
                   <motion.div
                     key={idx}
@@ -151,13 +198,12 @@ export default function MyCards() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15 }}
-                className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12"
+                className="grid grid-cols-3 gap-4 mb-12"
               >
                 {[
-                  { label: "Total Cards", value: `${myCards.length}`, icon: CreditCard, accent: false },
-                  { label: "Total Spend", value: totalSpend > 0 ? `₹${(totalSpend / 1000).toFixed(1)}K` : "₹0", icon: IndianRupee, accent: false },
                   { label: "Rewards Earned", value: totalRewards > 0 ? `₹${totalRewards.toLocaleString()}` : "₹0", icon: Sparkles, accent: true },
-                  { label: "Expenses Logged", value: `${expenses.filter((e) => myCards.some((c) => c.id === e.cardId)).length}`, icon: TrendingUp, accent: false },
+                  { label: "Expenses Logged", value: `${myExpenses.length}`, icon: TrendingUp, accent: false },
+                  { label: "Categories Used", value: `${catMap.size}`, icon: BarChart3, accent: false },
                 ].map((stat, i) => (
                   <motion.div
                     key={stat.label}
@@ -193,23 +239,28 @@ export default function MyCards() {
                 {/* Cards Tab */}
                 <TabsContent value="cards">
                   <div className="grid md:grid-cols-2 gap-5">
-                    <AnimatePresence>
+                    <AnimatePresence mode="popLayout">
                       {myCards.map((card, i) => {
                         const cardExpenses = getByCard(card.id);
                         const cardTotal = totalByCard(card.id);
+                        const rewardPct = parseRewardPct(card.rewards);
+                        const cardRewards = Math.round(cardTotal * rewardPct);
                         return (
                           <motion.div
                             key={card.id}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
+                            exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
                             transition={{ delay: i * 0.08 }}
                             layout
                             className="group relative"
                           >
                             <div className="absolute -inset-[1px] rounded-[22px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" style={{ background: `linear-gradient(135deg, ${card.color}30, transparent 50%, ${card.color}10)` }} />
 
-                            <div className="relative glass-card rounded-[22px] overflow-hidden border border-border/20 hover:border-border/40 transition-all duration-500">
+                            <div className="relative glass-card rounded-[22px] overflow-hidden border border-border/20 hover:border-border/40 transition-all duration-500 hover:-translate-y-0.5">
+                              {/* Brand color top border */}
+                              <div className="h-0.5" style={{ background: `linear-gradient(90deg, ${card.color}, ${card.color}40)` }} />
+
                               {/* Card image header */}
                               <div className="relative h-44 overflow-hidden" style={{ background: `linear-gradient(135deg, ${card.color}22, ${card.color}08)` }}>
                                 {card.image ? (
@@ -251,14 +302,18 @@ export default function MyCards() {
                                 </div>
 
                                 {/* Spend summary */}
-                                <div className="grid grid-cols-2 gap-3 mb-4">
+                                <div className="grid grid-cols-3 gap-3 mb-4">
                                   <div className="rounded-xl p-3 bg-secondary/20 border border-border/15">
                                     <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1">Spend</p>
                                     <p className="text-base font-serif font-bold">{cardTotal > 0 ? `₹${(cardTotal / 1000).toFixed(1)}K` : "₹0"}</p>
                                   </div>
+                                  <div className="rounded-xl p-3 bg-secondary/20 border border-border/15">
+                                    <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1">Expenses</p>
+                                    <p className="text-base font-serif font-bold">{cardExpenses.length}</p>
+                                  </div>
                                   <div className="rounded-xl p-3 border border-gold/15" style={{ background: `linear-gradient(135deg, hsl(var(--gold) / 0.06), transparent)` }}>
-                                    <p className="text-[9px] text-gold uppercase tracking-wider mb-1 font-semibold">Expenses</p>
-                                    <p className="text-base font-serif font-bold text-gold">{cardExpenses.length}</p>
+                                    <p className="text-[9px] text-gold uppercase tracking-wider mb-1 font-semibold">Rewards</p>
+                                    <p className="text-base font-serif font-bold text-gold">{cardRewards > 0 ? `~₹${cardRewards.toLocaleString()}` : "₹0"}</p>
                                   </div>
                                 </div>
 
@@ -358,14 +413,76 @@ export default function MyCards() {
 
                     {totalSpend === 0 ? (
                       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
-                        <div className="w-20 h-20 rounded-2xl bg-secondary/20 flex items-center justify-center mx-auto mb-5">
-                          <BarChart3 className="w-8 h-8 text-muted-foreground/30" />
+                        <div className="relative w-24 h-24 mx-auto mb-6">
+                          <motion.div
+                            className="absolute inset-0 rounded-2xl bg-gradient-to-br from-gold/10 to-gold/5 flex items-center justify-center"
+                            animate={{ scale: [1, 1.05, 1] }}
+                            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                          >
+                            <Receipt className="w-10 h-10 text-gold/40" />
+                          </motion.div>
+                          <motion.div
+                            className="absolute -inset-3 rounded-2xl border border-gold/10"
+                            animate={{ scale: [1, 1.1, 1], opacity: [0.2, 0.4, 0.2] }}
+                            transition={{ repeat: Infinity, duration: 2.5 }}
+                          />
                         </div>
                         <p className="font-serif text-xl font-bold mb-2">No expenses logged yet</p>
-                        <p className="text-sm text-muted-foreground">Start tracking your spending on each card</p>
+                        <p className="text-sm text-muted-foreground mb-2">Start tracking your spending on each card</p>
+                        <p className="text-[10px] text-gold/70 mb-6 max-w-xs mx-auto">💡 Pro tip: Log expenses by category to see which card earns you the best rewards</p>
+                        <div className="flex gap-2 justify-center flex-wrap">
+                          {myCards.slice(0, 3).map((card) => (
+                            <AddExpenseDialog
+                              key={card.id}
+                              cardId={card.id}
+                              cardName={card.name}
+                              cardColor={card.color}
+                              onAdd={addExpense}
+                              trigger={
+                                <button className="text-xs py-2.5 px-4 rounded-xl gold-outline-btn flex items-center gap-2 font-medium">
+                                  <div className="w-3 h-2 rounded-sm" style={{ background: card.color }} />
+                                  <Plus className="w-3 h-3" /> {card.name}
+                                </button>
+                              }
+                            />
+                          ))}
+                        </div>
                       </motion.div>
                     ) : (
                       <>
+                        {/* Monthly Trend Chart */}
+                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="glass-card rounded-[22px] p-6 border border-border/20">
+                          <h3 className="font-serif text-lg font-bold mb-1">Monthly Spending Trend</h3>
+                          <p className="text-[10px] text-muted-foreground mb-6">Spend vs rewards over the last 6 months</p>
+                          <ResponsiveContainer width="100%" height={220}>
+                            <AreaChart data={monthlyTrend} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+                              <defs>
+                                <linearGradient id="spendGrad" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="0%" stopColor="hsl(var(--gold))" stopOpacity={0.3} />
+                                  <stop offset="100%" stopColor="hsl(var(--gold))" stopOpacity={0} />
+                                </linearGradient>
+                                <linearGradient id="rewardGrad" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="0%" stopColor="#4ade80" stopOpacity={0.3} />
+                                  <stop offset="100%" stopColor="#4ade80" stopOpacity={0} />
+                                </linearGradient>
+                              </defs>
+                              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.15)" />
+                              <XAxis dataKey="month" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                              <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}K`} />
+                              <Tooltip
+                                contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border) / 0.2)", borderRadius: 12, fontSize: 12 }}
+                                formatter={(value: number, name: string) => [`₹${value.toLocaleString()}`, name === "spend" ? "Spend" : "Rewards"]}
+                              />
+                              <Area type="monotone" dataKey="spend" stroke="hsl(var(--gold))" strokeWidth={2} fill="url(#spendGrad)" />
+                              <Area type="monotone" dataKey="rewards" stroke="#4ade80" strokeWidth={2} fill="url(#rewardGrad)" />
+                            </AreaChart>
+                          </ResponsiveContainer>
+                          <div className="flex items-center gap-5 mt-3 justify-center">
+                            <div className="flex items-center gap-2"><div className="w-3 h-1.5 rounded-full bg-gold" /><span className="text-[10px] text-muted-foreground">Spend</span></div>
+                            <div className="flex items-center gap-2"><div className="w-3 h-1.5 rounded-full bg-green-400" /><span className="text-[10px] text-muted-foreground">Rewards</span></div>
+                          </div>
+                        </motion.div>
+
                         {/* Charts row */}
                         <div className="grid lg:grid-cols-2 gap-6">
                           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card rounded-[22px] p-6 border border-border/20">
@@ -436,45 +553,57 @@ export default function MyCards() {
                           )}
                         </div>
 
-                        {/* All expenses list */}
+                        {/* All expenses list — grouped by date */}
                         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass-card rounded-[22px] p-6 border border-border/20">
                           <div className="flex items-center justify-between mb-6">
                             <div>
                               <h3 className="font-serif text-lg font-bold">All Expenses</h3>
                               <p className="text-[10px] text-muted-foreground mt-1">Across all your cards</p>
                             </div>
-                            <span className="text-[10px] px-3 py-1 rounded-full bg-secondary/40 text-muted-foreground font-medium">{expenses.filter((e) => myCards.some((c) => c.id === e.cardId)).length} entries</span>
+                            <span className="text-[10px] px-3 py-1 rounded-full bg-secondary/40 text-muted-foreground font-medium">{myExpenses.length} entries</span>
                           </div>
-                          <div className="space-y-2">
-                            {expenses
-                              .filter((e) => myCards.some((c) => c.id === e.cardId))
-                              .map((exp) => {
-                                const card = cards.find((c) => c.id === exp.cardId);
-                                const catLabel = CATEGORIES.find((c) => c.value === exp.category)?.label || exp.category;
-                                const CatIcon = categoryIcons[exp.category] || ShoppingBag;
-                                return (
-                                  <div key={exp.id} className="flex items-center justify-between py-3 border-b border-border/10 last:border-0 group hover:bg-secondary/5 rounded-lg px-2 -mx-2 transition-colors">
-                                    <div className="flex items-center gap-3">
-                                      <div className="w-10 h-10 rounded-xl bg-secondary/30 flex items-center justify-center border border-border/15">
-                                        <CatIcon className="w-4 h-4 text-muted-foreground" />
-                                      </div>
-                                      <div>
-                                        <p className="text-sm font-semibold">{exp.merchant}</p>
-                                        <p className="text-[10px] text-muted-foreground">{card?.name} · {exp.date}{exp.note && ` · ${exp.note}`}</p>
-                                      </div>
+                          <div className="space-y-1">
+                            {groupedExpenses.map(([date, dateExpenses]) => {
+                              const dayTotal = dateExpenses.reduce((s, e) => s + e.amount, 0);
+                              return (
+                                <div key={date}>
+                                  <div className="flex items-center justify-between py-2 mb-1">
+                                    <div className="flex items-center gap-2">
+                                      <Calendar className="w-3 h-3 text-muted-foreground" />
+                                      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{date}</span>
                                     </div>
-                                    <div className="flex items-center gap-3">
-                                      <p className="text-sm font-bold">-₹{exp.amount.toLocaleString()}</p>
-                                      <button
-                                        onClick={() => deleteExpense(exp.id)}
-                                        className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-red-500/20 transition-all"
-                                      >
-                                        <Trash2 className="w-3.5 h-3.5 text-muted-foreground hover:text-red-400" />
-                                      </button>
-                                    </div>
+                                    <span className="text-[10px] font-bold text-muted-foreground">₹{dayTotal.toLocaleString()}</span>
                                   </div>
-                                );
-                              })}
+                                  {dateExpenses.map((exp) => {
+                                    const card = cards.find((c) => c.id === exp.cardId);
+                                    const catLabel = CATEGORIES.find((c) => c.value === exp.category)?.label || exp.category;
+                                    const CatIcon = categoryIcons[exp.category] || ShoppingBag;
+                                    return (
+                                      <div key={exp.id} className="flex items-center justify-between py-3 border-b border-border/10 last:border-0 group hover:bg-secondary/5 rounded-lg px-2 -mx-2 transition-colors">
+                                        <div className="flex items-center gap-3">
+                                          <div className="w-10 h-10 rounded-xl bg-secondary/30 flex items-center justify-center border border-border/15">
+                                            <CatIcon className="w-4 h-4 text-muted-foreground" />
+                                          </div>
+                                          <div>
+                                            <p className="text-sm font-semibold">{exp.merchant}</p>
+                                            <p className="text-[10px] text-muted-foreground">{card?.name}{exp.note && ` · ${exp.note}`}</p>
+                                          </div>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                          <p className="text-sm font-bold">-₹{exp.amount.toLocaleString()}</p>
+                                          <button
+                                            onClick={() => deleteExpense(exp.id)}
+                                            className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-red-500/20 transition-all"
+                                          >
+                                            <Trash2 className="w-3.5 h-3.5 text-muted-foreground hover:text-red-400" />
+                                          </button>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              );
+                            })}
                           </div>
                         </motion.div>
                       </>
@@ -486,44 +615,85 @@ export default function MyCards() {
           )}
         </div>
       </section>
+      <BackToTop />
     </PageLayout>
   );
 }
 
 function AddCardsDialogContent({ isMyCard, toggleMyCard }: { isMyCard: (id: string) => boolean; toggleMyCard: (id: string) => void }) {
+  const [search, setSearch] = useState("");
+  const filtered = cards.filter((c) =>
+    c.name.toLowerCase().includes(search.toLowerCase()) ||
+    c.issuer.toLowerCase().includes(search.toLowerCase())
+  );
+
+  // Group by issuer
+  const issuerGroups = useMemo(() => {
+    const groups: Record<string, typeof filtered> = {};
+    filtered.forEach((card) => {
+      if (!groups[card.issuer]) groups[card.issuer] = [];
+      groups[card.issuer].push(card);
+    });
+    return Object.entries(groups);
+  }, [filtered]);
+
   return (
     <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
       <DialogHeader>
         <DialogTitle className="font-serif text-xl">Add Cards to Wallet</DialogTitle>
       </DialogHeader>
-      <div className="space-y-2 mt-2">
-        {cards.map((card) => {
-          const added = isMyCard(card.id);
-          return (
-            <button
-              key={card.id}
-              onClick={() => toggleMyCard(card.id)}
-              className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all ${added ? "border-gold/40 bg-gold/5" : "border-border/30 hover:border-border/60 bg-secondary/10"}`}
-            >
-              <div className="w-14 h-9 rounded-lg overflow-hidden flex-shrink-0">
-                {card.image ? (
-                  <img src={card.image} alt={card.name} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: card.color + "22" }}>
-                    <CreditCard className="w-5 h-5" style={{ color: card.color }} />
-                  </div>
-                )}
-              </div>
-              <div className="flex-1 text-left min-w-0">
-                <p className="text-sm font-semibold truncate">{card.name}</p>
-                <p className="text-[10px] text-muted-foreground">{card.issuer} · {card.fee}/yr</p>
-              </div>
-              <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${added ? "bg-gold text-background" : "bg-secondary/40"}`}>
-                {added ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4 text-muted-foreground" />}
-              </div>
-            </button>
-          );
-        })}
+      <div className="relative mt-2 mb-3">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input
+          placeholder="Search by name or issuer..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="pl-9 bg-secondary/30 border-border/20 text-sm h-10"
+        />
+      </div>
+      <div className="space-y-4">
+        {issuerGroups.map(([issuer, issuerCards]) => (
+          <div key={issuer}>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-2 px-1">{issuer}</p>
+            <div className="space-y-1.5">
+              {issuerCards.map((card) => {
+                const added = isMyCard(card.id);
+                return (
+                  <button
+                    key={card.id}
+                    onClick={() => toggleMyCard(card.id)}
+                    className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all ${added ? "border-gold/40 bg-gold/5" : "border-border/30 hover:border-border/60 bg-secondary/10"}`}
+                    style={{ borderLeftWidth: 3, borderLeftColor: card.color }}
+                  >
+                    <div className="w-14 h-9 rounded-lg overflow-hidden flex-shrink-0">
+                      {card.image ? (
+                        <img src={card.image} alt={card.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: card.color + "22" }}>
+                          <CreditCard className="w-5 h-5" style={{ color: card.color }} />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 text-left min-w-0">
+                      <p className="text-sm font-semibold truncate">{card.name}</p>
+                      <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                        <span>{card.fee}/yr</span>
+                        <span className="flex items-center gap-0.5"><Star className="w-2.5 h-2.5 text-gold fill-gold" />{card.rating}</span>
+                        <span>{card.rewards}</span>
+                      </div>
+                    </div>
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${added ? "bg-gold text-background" : "bg-secondary/40"}`}>
+                      {added ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4 text-muted-foreground" />}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+        {issuerGroups.length === 0 && (
+          <p className="text-sm text-muted-foreground text-center py-8">No cards match "{search}"</p>
+        )}
       </div>
     </DialogContent>
   );
