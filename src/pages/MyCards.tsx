@@ -105,8 +105,33 @@ export default function MyCards() {
 
           {myCards.length === 0 ? (
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-24">
-              <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-gold/15 to-gold/5 flex items-center justify-center mx-auto mb-6">
-                <CreditCard className="w-10 h-10 text-gold/40" />
+              <div className="relative w-32 h-28 mx-auto mb-8">
+                {/* Wallet body */}
+                <motion.div
+                  className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-16 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20 flex items-center justify-center"
+                  initial={{ rotateX: 0 }}
+                  animate={{ rotateX: [0, -10, 0] }}
+                  transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+                  style={{ transformOrigin: "bottom center" }}
+                >
+                  <Wallet className="w-8 h-8 text-gold/40" />
+                </motion.div>
+                {/* Peeking cards */}
+                {[0, 1, 2].map((idx) => (
+                  <motion.div
+                    key={idx}
+                    className="absolute left-1/2 rounded-lg shadow-md"
+                    style={{
+                      width: 56,
+                      height: 36,
+                      marginLeft: -28 + (idx - 1) * 8,
+                      background: idx === 0 ? "linear-gradient(135deg, hsl(var(--gold)), hsl(var(--gold-dark)))" : idx === 1 ? "linear-gradient(135deg, hsl(220 15% 22%), hsl(220 18% 28%))" : "linear-gradient(135deg, hsl(var(--gold-light)), hsl(var(--gold)))",
+                    }}
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: [20, -8 - idx * 10, -4 - idx * 8], opacity: [0, 1, 0.8] }}
+                    transition={{ delay: 0.5 + idx * 0.2, duration: 1.5, repeat: Infinity, repeatDelay: 2 }}
+                  />
+                ))}
               </div>
               <p className="font-serif text-2xl font-bold mb-3">No cards added yet</p>
               <p className="text-sm text-muted-foreground mb-8 max-w-sm mx-auto">Pick cards from our catalog to build your wallet.</p>

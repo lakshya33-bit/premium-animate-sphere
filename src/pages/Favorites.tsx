@@ -109,8 +109,34 @@ export default function Favorites() {
 
           {totalCount === 0 && (
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-24">
-              <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-gold/15 to-gold/5 flex items-center justify-center mx-auto mb-6">
-                <Heart className="w-10 h-10 text-gold/40" />
+              <div className="relative w-28 h-28 mx-auto mb-8">
+                <motion.div
+                  className="absolute inset-0 rounded-3xl bg-gradient-to-br from-gold/15 to-gold/5 flex items-center justify-center"
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                >
+                  <Heart className="w-12 h-12 text-gold/50" />
+                </motion.div>
+                <motion.div
+                  className="absolute -inset-3 rounded-3xl border border-gold/15"
+                  animate={{ scale: [1, 1.1, 1], opacity: [0.2, 0.5, 0.2] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                />
+                {[CreditCard, Gift, BookOpen].map((Icon, idx) => (
+                  <motion.div
+                    key={idx}
+                    className="absolute w-8 h-8 rounded-lg bg-gold/10 flex items-center justify-center"
+                    animate={{
+                      x: [0, Math.cos((idx * 2 * Math.PI) / 3) * 50],
+                      y: [0, Math.sin((idx * 2 * Math.PI) / 3) * 50],
+                      opacity: [0, 0.7, 0],
+                    }}
+                    transition={{ repeat: Infinity, duration: 3, delay: idx * 0.8, ease: "easeInOut" }}
+                    style={{ top: "50%", left: "50%", marginTop: -16, marginLeft: -16 }}
+                  >
+                    <Icon className="w-3.5 h-3.5 text-gold" />
+                  </motion.div>
+                ))}
               </div>
               <p className="font-serif text-2xl font-bold mb-3">No favorites yet</p>
               <p className="text-sm text-muted-foreground mb-8 max-w-sm mx-auto">Tap the heart icon on any card, voucher, guide, or banking tier to start building your collection.</p>

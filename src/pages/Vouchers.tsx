@@ -205,7 +205,9 @@ export default function Vouchers() {
             {filtered.map((v, i) => {
               const Icon = iconMap[v.category] || Gift;
               return (
-                <motion.div key={v.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.4 }} className="tilt-card glass-card rounded-2xl p-6 group relative">
+                <motion.div key={v.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.4 }} className="tilt-card glass-card rounded-2xl overflow-hidden group relative hover:shadow-lg hover:shadow-gold/5 hover:-translate-y-1 transition-all duration-300">
+                  <div className="h-1 w-full" style={{ background: `linear-gradient(90deg, ${v.color}, ${v.color}40)` }} />
+                  <div className="p-6 relative">
                   <div className="absolute top-4 right-4 z-10">
                     <FavoriteButton
                       isFav={isFav(v.id)}
@@ -234,6 +236,7 @@ export default function Vouchers() {
                   <div className="flex gap-2 mt-auto">
                     <button onClick={() => setQuickViewVoucher(v)} className="flex-1 text-xs py-2 rounded-lg gold-outline-btn flex items-center justify-center gap-1"><Eye className="w-3 h-3" /> Quick View</button>
                     <Link to={`/vouchers/${v.id}`} className="flex-1 text-xs py-2 rounded-lg gold-btn flex items-center justify-center gap-1"><ExternalLink className="w-3 h-3" /> Full View</Link>
+                  </div>
                   </div>
                 </motion.div>
               );
