@@ -1,26 +1,16 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { CreditCard, Star, TrendingUp, TrendingDown, IndianRupee, PieChart, ArrowUpDown, Receipt, ShoppingBag, UtensilsCrossed, Car, Fuel, Plane, Smartphone } from "lucide-react";
+import { CreditCard, Star, TrendingUp, TrendingDown, IndianRupee, PieChart, ArrowUpDown, Receipt, ShoppingBag, UtensilsCrossed, Car, Fuel, Plane, Smartphone, Eye, ExternalLink, Check, X } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Link } from "react-router-dom";
 import PageLayout from "@/components/PageLayout";
+import { cards, type CreditCard as CardType } from "@/data/cards";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart as RePieChart, Pie, Cell, LineChart, Line, CartesianGrid } from "recharts";
 
-const cards = [
-  { name: "HDFC Infinia", network: "Visa", fee: "₹12,500", rating: 4.8, rewards: "3.3% value", lounge: "Unlimited", vouchers: ["Flipkart 7%", "Amazon 5%", "BigBasket 8%"], color: "#003D8F", perks: ["10x on SmartBuy", "Golf access", "Concierge service"] },
-  { name: "ICICI Emeralde", network: "Visa", fee: "₹12,000", rating: 4.7, rewards: "3.5% value", lounge: "Unlimited", vouchers: ["Amazon 6%", "Zomato 10%", "MakeMyTrip 12%"], color: "#F58220", perks: ["2 int'l lounge", "Cleartrip rewards", "Buy 1 Get 1 movies"] },
-  { name: "Axis Atlas", network: "Visa", fee: "₹5,000", rating: 4.6, rewards: "2% value", lounge: "8/quarter", vouchers: ["MakeMyTrip 10%", "Uber 5%", "Zomato 8%"], color: "#97144D", perks: ["5x on travel", "Edge Miles", "Complimentary insurance"] },
-  { name: "SBI Elite", network: "Visa", fee: "₹4,999", rating: 4.4, rewards: "2.5% value", lounge: "6/year", vouchers: ["Amazon 5%", "BigBasket 6%", "Croma 5%"], color: "#0033A0", perks: ["Milestone benefits", "Movie tickets", "Dining discounts"] },
-  { name: "HDFC Diners Black", network: "Diners", fee: "₹10,000", rating: 4.7, rewards: "3.3% value", lounge: "Unlimited", vouchers: ["Zomato 10%", "Swiggy 8%", "MakeMyTrip 12%"], color: "#1A1A2E", perks: ["10x SmartBuy", "Golf worldwide", "Concierge"] },
-  { name: "Kotak Royale", network: "Visa", fee: "₹3,000", rating: 4.2, rewards: "1.5% value", lounge: "4/quarter", vouchers: ["BookMyShow 10%", "Flipkart 5%", "Cult.fit 8%"], color: "#ED1C24", perks: ["PVR BOGO", "Airport lounge", "Fuel surcharge waiver"] },
-];
-
 const expenseData = [
-  { month: "Sep", amount: 42500 },
-  { month: "Oct", amount: 38900 },
-  { month: "Nov", amount: 51200 },
-  { month: "Dec", amount: 67800 },
-  { month: "Jan", amount: 45600 },
-  { month: "Feb", amount: 53200 },
+  { month: "Sep", amount: 42500 }, { month: "Oct", amount: 38900 }, { month: "Nov", amount: 51200 },
+  { month: "Dec", amount: 67800 }, { month: "Jan", amount: 45600 }, { month: "Feb", amount: 53200 },
 ];
 
 const categoryExpenses = [
@@ -45,8 +35,49 @@ const recentTransactions = [
 
 const totalExpense = categoryExpenses.reduce((s, c) => s + c.value, 0);
 
+function CardQuickView({ card, open, onClose }: { card: CardType | null; open: boolean; onClose: () => void }) {
+  if (!card) return null;
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="glass-card border-border/50 sm:max-w-lg">
+        <DialogHeader>
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-8 rounded-lg" style={{ background: `linear-gradient(135deg, ${card.color}, ${card.color}88)` }} />
+            <div>
+              <DialogTitle className="font-serif text-xl">{card.name}</DialogTitle>
+              <p className="text-xs text-muted-foreground">{card.issuer} · {card.network}</p>
+            </div>
+          </div>
+        </DialogHeader>
+        <div className="space-y-4 mt-2">
+          <div className="grid grid-cols-3 gap-3">
+            {[{ l: "Fee", v: card.fee }, { l: "Rewards", v: card.rewards }, { l: "Lounge", v: card.lounge }].map((s) => (
+              <div key={s.l} className="text-center bg-secondary/30 rounded-xl p-3">
+                <p className="text-[10px] text-muted-foreground uppercase">{s.l}</p>
+                <p className="text-sm font-semibold text-gold mt-1">{s.v}</p>
+              </div>
+            ))}
+          </div>
+          <div>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Key Perks</p>
+            <div className="space-y-1.5">{card.perks.map((p) => <div key={p} className="flex items-center gap-2"><Check className="w-3 h-3 text-gold" /><span className="text-sm">{p}</span></div>)}</div>
+          </div>
+          <div>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Top Voucher Rates</p>
+            <div className="flex flex-wrap gap-1.5">{card.vouchers.map((v) => <span key={v} className="text-xs px-2.5 py-1 rounded-full bg-secondary/60">{v}</span>)}</div>
+          </div>
+          <div className="flex flex-wrap gap-1.5">{card.bestFor.map((b) => <span key={b} className="text-xs px-2.5 py-1 rounded-full bg-gold/10 text-gold">{b}</span>)}</div>
+          <Link to={`/cards/${card.id}`} onClick={onClose} className="gold-btn w-full py-2.5 rounded-xl text-sm flex items-center justify-center gap-2">
+            View Full Details <ExternalLink className="w-4 h-4" />
+          </Link>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function KnowYourCards() {
-  const [selectedCard, setSelectedCard] = useState<number | null>(null);
+  const [quickViewCard, setQuickViewCard] = useState<CardType | null>(null);
 
   return (
     <PageLayout>
@@ -54,35 +85,20 @@ export default function KnowYourCards() {
         <div className="container mx-auto px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <p className="text-sm font-medium tracking-widest uppercase text-gold mb-3">Know Your Cards</p>
-            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
-              Cards & <span className="gold-gradient">Expenses</span>
-            </h1>
+            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">Cards & <span className="gold-gradient">Expenses</span></h1>
             <p className="text-muted-foreground max-w-xl mb-10">Deep-dive into every credit card's perks, compare benefits, and track your spending across all cards.</p>
           </motion.div>
 
           <Tabs defaultValue="cards" className="w-full">
             <TabsList className="bg-secondary/50 border border-border/50 mb-8">
-              <TabsTrigger value="cards" className="data-[state=active]:bg-gold data-[state=active]:text-background">
-                <CreditCard className="w-4 h-4 mr-2" /> Cards
-              </TabsTrigger>
-              <TabsTrigger value="expenses" className="data-[state=active]:bg-gold data-[state=active]:text-background">
-                <PieChart className="w-4 h-4 mr-2" /> Expenses
-              </TabsTrigger>
+              <TabsTrigger value="cards" className="data-[state=active]:bg-gold data-[state=active]:text-background"><CreditCard className="w-4 h-4 mr-2" /> Cards</TabsTrigger>
+              <TabsTrigger value="expenses" className="data-[state=active]:bg-gold data-[state=active]:text-background"><PieChart className="w-4 h-4 mr-2" /> Expenses</TabsTrigger>
             </TabsList>
 
-            {/* Cards Tab */}
             <TabsContent value="cards">
               <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
                 {cards.map((card, i) => (
-                  <motion.div
-                    key={card.name}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.08, duration: 0.4 }}
-                    className={`tilt-card glass-card rounded-2xl overflow-hidden cursor-pointer transition-all ${selectedCard === i ? "ring-2 ring-gold" : ""}`}
-                    onClick={() => setSelectedCard(selectedCard === i ? null : i)}
-                  >
-                    {/* Card header with gradient */}
+                  <motion.div key={card.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08, duration: 0.4 }} className="tilt-card glass-card rounded-2xl overflow-hidden">
                     <div className="h-24 relative" style={{ background: `linear-gradient(135deg, ${card.color}, ${card.color}88)` }}>
                       <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent" />
                       <div className="absolute bottom-3 left-5 right-5 flex items-end justify-between">
@@ -91,58 +107,28 @@ export default function KnowYourCards() {
                           <p className="text-xs text-foreground/70">{card.network}</p>
                         </div>
                         <div className="flex items-center gap-1 bg-background/30 backdrop-blur px-2 py-1 rounded-lg">
-                          <Star className="w-3 h-3 text-gold fill-gold" />
-                          <span className="text-xs font-medium">{card.rating}</span>
+                          <Star className="w-3 h-3 text-gold fill-gold" /><span className="text-xs font-medium">{card.rating}</span>
                         </div>
                       </div>
                     </div>
-
                     <div className="p-5">
                       <div className="grid grid-cols-3 gap-3 mb-4">
-                        <div className="text-center">
-                          <p className="text-[10px] text-muted-foreground uppercase">Fee</p>
-                          <p className="text-sm font-semibold">{card.fee}</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-[10px] text-muted-foreground uppercase">Rewards</p>
-                          <p className="text-sm font-semibold text-gold">{card.rewards}</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-[10px] text-muted-foreground uppercase">Lounge</p>
-                          <p className="text-sm font-semibold">{card.lounge}</p>
-                        </div>
+                        <div className="text-center"><p className="text-[10px] text-muted-foreground uppercase">Fee</p><p className="text-sm font-semibold">{card.fee}</p></div>
+                        <div className="text-center"><p className="text-[10px] text-muted-foreground uppercase">Rewards</p><p className="text-sm font-semibold text-gold">{card.rewards}</p></div>
+                        <div className="text-center"><p className="text-[10px] text-muted-foreground uppercase">Lounge</p><p className="text-sm font-semibold">{card.lounge}</p></div>
                       </div>
-
-                      {selectedCard === i && (
-                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="border-t border-border/30 pt-4 space-y-3">
-                          <div>
-                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Key Perks</p>
-                            <div className="flex flex-wrap gap-1.5">
-                              {card.perks.map((p) => (
-                                <span key={p} className="text-[10px] px-2.5 py-1 rounded-full bg-gold/10 text-gold">{p}</span>
-                              ))}
-                            </div>
-                          </div>
-                          <div>
-                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Top Voucher Rates</p>
-                            <div className="flex flex-wrap gap-1.5">
-                              {card.vouchers.map((v) => (
-                                <span key={v} className="text-[10px] px-2.5 py-1 rounded-full bg-secondary/60 text-foreground">{v}</span>
-                              ))}
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
+                      <div className="flex gap-2">
+                        <button onClick={() => setQuickViewCard(card)} className="flex-1 text-xs py-2 rounded-lg gold-outline-btn flex items-center justify-center gap-1"><Eye className="w-3 h-3" /> Quick View</button>
+                        <Link to={`/cards/${card.id}`} className="flex-1 text-xs py-2 rounded-lg gold-btn flex items-center justify-center gap-1"><ExternalLink className="w-3 h-3" /> Full View</Link>
+                      </div>
                     </div>
                   </motion.div>
                 ))}
               </div>
             </TabsContent>
 
-            {/* Expenses Tab */}
             <TabsContent value="expenses">
               <div className="space-y-8">
-                {/* Summary cards */}
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   {[
                     { label: "Total Spend", value: `₹${(totalExpense / 1000).toFixed(1)}K`, icon: IndianRupee, change: "+8.2%", up: true },
@@ -152,12 +138,9 @@ export default function KnowYourCards() {
                   ].map((stat, i) => (
                     <motion.div key={stat.label} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="glass-card rounded-xl p-5">
                       <div className="flex items-center justify-between mb-3">
-                        <div className="w-9 h-9 rounded-lg bg-gold/10 flex items-center justify-center">
-                          <stat.icon className="w-4 h-4 text-gold" />
-                        </div>
+                        <div className="w-9 h-9 rounded-lg bg-gold/10 flex items-center justify-center"><stat.icon className="w-4 h-4 text-gold" /></div>
                         <span className={`text-xs font-medium flex items-center gap-0.5 ${stat.up ? "text-green-400" : "text-red-400"}`}>
-                          {stat.up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                          {stat.change}
+                          {stat.up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}{stat.change}
                         </span>
                       </div>
                       <p className="text-2xl font-serif font-bold">{stat.value}</p>
@@ -166,9 +149,7 @@ export default function KnowYourCards() {
                   ))}
                 </div>
 
-                {/* Charts row */}
                 <div className="grid lg:grid-cols-2 gap-6">
-                  {/* Spending trend */}
                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass-card rounded-2xl p-6">
                     <h3 className="font-serif text-lg font-semibold mb-1">Monthly Spending</h3>
                     <p className="text-xs text-muted-foreground mb-6">Last 6 months trend</p>
@@ -183,27 +164,17 @@ export default function KnowYourCards() {
                     </ResponsiveContainer>
                   </motion.div>
 
-                  {/* Category breakdown */}
                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="glass-card rounded-2xl p-6">
                     <h3 className="font-serif text-lg font-semibold mb-1">Category Breakdown</h3>
                     <p className="text-xs text-muted-foreground mb-6">Where your money goes</p>
                     <div className="flex items-center gap-6">
                       <ResponsiveContainer width={140} height={140}>
-                        <RePieChart>
-                          <Pie data={categoryExpenses} cx="50%" cy="50%" innerRadius={40} outerRadius={65} dataKey="value" stroke="none">
-                            {categoryExpenses.map((entry) => (
-                              <Cell key={entry.name} fill={entry.color} />
-                            ))}
-                          </Pie>
-                        </RePieChart>
+                        <RePieChart><Pie data={categoryExpenses} cx="50%" cy="50%" innerRadius={40} outerRadius={65} dataKey="value" stroke="none">{categoryExpenses.map((e) => <Cell key={e.name} fill={e.color} />)}</Pie></RePieChart>
                       </ResponsiveContainer>
                       <div className="flex-1 space-y-2.5">
                         {categoryExpenses.map((cat) => (
                           <div key={cat.name} className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: cat.color }} />
-                              <span className="text-xs text-muted-foreground">{cat.name}</span>
-                            </div>
+                            <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: cat.color }} /><span className="text-xs text-muted-foreground">{cat.name}</span></div>
                             <span className="text-xs font-medium">₹{(cat.value / 1000).toFixed(1)}K</span>
                           </div>
                         ))}
@@ -212,18 +183,11 @@ export default function KnowYourCards() {
                   </motion.div>
                 </div>
 
-                {/* Card-wise spending */}
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="glass-card rounded-2xl p-6">
                   <h3 className="font-serif text-lg font-semibold mb-1">Card-wise Spending</h3>
                   <p className="text-xs text-muted-foreground mb-6">Spend distribution across your cards</p>
                   <ResponsiveContainer width="100%" height={200}>
-                    <BarChart data={[
-                      { card: "HDFC Infinia", amount: 22500 },
-                      { card: "Diners Black", amount: 12800 },
-                      { card: "Axis Atlas", amount: 8500 },
-                      { card: "SBI Elite", amount: 5400 },
-                      { card: "ICICI Emeralde", amount: 4000 },
-                    ]}>
+                    <BarChart data={[{ card: "HDFC Infinia", amount: 22500 }, { card: "Diners Black", amount: 12800 }, { card: "Axis Atlas", amount: 8500 }, { card: "SBI Elite", amount: 5400 }, { card: "ICICI Emeralde", amount: 4000 }]}>
                       <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 12% 18%)" />
                       <XAxis dataKey="card" tick={{ fill: "hsl(220 10% 55%)", fontSize: 11 }} axisLine={false} />
                       <YAxis tick={{ fill: "hsl(220 10% 55%)", fontSize: 11 }} axisLine={false} tickFormatter={(v) => `₹${v / 1000}K`} />
@@ -233,7 +197,6 @@ export default function KnowYourCards() {
                   </ResponsiveContainer>
                 </motion.div>
 
-                {/* Recent transactions */}
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="glass-card rounded-2xl p-6">
                   <h3 className="font-serif text-lg font-semibold mb-1">Recent Transactions</h3>
                   <p className="text-xs text-muted-foreground mb-6">Your latest spending activity</p>
@@ -251,13 +214,8 @@ export default function KnowYourCards() {
                       <tbody>
                         {recentTransactions.map((tx, i) => (
                           <tr key={i} className="border-b border-border/10 hover:bg-secondary/20 transition-colors">
-                            <td className="py-3 pr-4">
-                              <div className="text-sm font-medium">{tx.merchant}</div>
-                              <div className="text-[10px] text-muted-foreground">{tx.date}</div>
-                            </td>
-                            <td className="py-3 pr-4">
-                              <span className="text-xs px-2 py-0.5 rounded-full bg-secondary/60">{tx.category}</span>
-                            </td>
+                            <td className="py-3 pr-4"><div className="text-sm font-medium">{tx.merchant}</div><div className="text-[10px] text-muted-foreground">{tx.date}</div></td>
+                            <td className="py-3 pr-4"><span className="text-xs px-2 py-0.5 rounded-full bg-secondary/60">{tx.category}</span></td>
                             <td className="py-3 pr-4 text-xs text-muted-foreground">{tx.card}</td>
                             <td className="py-3 pr-4 text-right text-sm font-medium">₹{tx.amount.toLocaleString()}</td>
                             <td className="py-3 text-right text-xs text-gold font-medium">{tx.reward}</td>
@@ -272,6 +230,8 @@ export default function KnowYourCards() {
           </Tabs>
         </div>
       </section>
+
+      <CardQuickView card={quickViewCard} open={!!quickViewCard} onClose={() => setQuickViewCard(null)} />
     </PageLayout>
   );
 }
