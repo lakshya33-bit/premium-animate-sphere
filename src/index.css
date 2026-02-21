@@ -6,6 +6,61 @@
 
 @layer base {
   :root {
+    --background: 40 20% 97%;
+    --foreground: 220 20% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 12%;
+
+    --primary: 43 55% 46%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 14% 92%;
+    --secondary-foreground: 220 20% 25%;
+
+    --muted: 220 14% 94%;
+    --muted-foreground: 220 10% 42%;
+
+    --accent: 43 55% 46%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 14% 88%;
+    --input: 220 14% 88%;
+    --ring: 43 55% 46%;
+
+    --radius: 0.75rem;
+
+    --gold: 43 55% 46%;
+    --gold-light: 43 60% 55%;
+    --gold-dark: 43 50% 35%;
+    --gold-glow: 43 70% 50%;
+
+    --glass: 220 14% 96%;
+    --glass-border: 220 14% 88%;
+
+    --sidebar-background: 40 20% 97%;
+    --sidebar-foreground: 220 20% 12%;
+    --sidebar-primary: 43 55% 46%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 92%;
+    --sidebar-accent-foreground: 220 20% 25%;
+    --sidebar-border: 220 14% 88%;
+    --sidebar-ring: 43 55% 46%;
+
+    --chart-stroke: 220 12% 82%;
+    --chart-text: 220 10% 42%;
+    --tooltip-bg: 0 0% 100%;
+    --tooltip-border: 220 14% 88%;
+    --tooltip-text: 220 20% 12%;
+  }
+
+  .dark {
     --background: 220 20% 7%;
     --foreground: 40 20% 92%;
 
@@ -52,6 +107,12 @@
     --sidebar-accent-foreground: 40 20% 85%;
     --sidebar-border: 220 12% 18%;
     --sidebar-ring: 43 55% 56%;
+
+    --chart-stroke: 220 12% 18%;
+    --chart-text: 220 10% 55%;
+    --tooltip-bg: 220 18% 10%;
+    --tooltip-border: 220 12% 18%;
+    --tooltip-text: 0 0% 100%;
   }
 }
 
@@ -75,6 +136,15 @@
     background: hsl(var(--glass) / 0.6);
     backdrop-filter: blur(20px);
     border: 1px solid hsl(var(--glass-border) / 0.4);
+  }
+
+  .dark .glass-card {
+    background: hsl(var(--glass) / 0.6);
+  }
+
+  :root .glass-card {
+    background: hsl(var(--glass) / 0.8);
+    box-shadow: 0 1px 3px hsl(220 20% 7% / 0.04);
   }
 
   .gold-gradient {

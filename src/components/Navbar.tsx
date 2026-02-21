@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Heart, Bell, Menu, X, ChevronDown, User } from "lucide-react";
+import { Heart, Bell, Menu, X, ChevronDown, User, Sun, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from "@/components/ThemeProvider";
 import logo from "@/assets/cardperks-logo.png";
 
 const navLinks = [
@@ -21,6 +22,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -89,6 +91,9 @@ export default function Navbar() {
 
           {/* Right side icons */}
           <div className="hidden lg:flex items-center gap-2">
+            <button onClick={toggleTheme} className="p-2 text-muted-foreground hover:text-gold transition-colors rounded-lg hover:bg-secondary/50">
+              {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
             <Link to="/dashboard" className="p-2 text-muted-foreground hover:text-gold transition-colors rounded-lg hover:bg-secondary/50">
               <Heart className="w-4 h-4" />
             </Link>
@@ -148,6 +153,9 @@ export default function Navbar() {
                 </Link>
               ))}
               <div className="mt-4 flex gap-3">
+                <button onClick={toggleTheme} className="p-2 text-muted-foreground hover:text-gold transition-colors">
+                  {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                </button>
                 <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="p-2 text-muted-foreground hover:text-gold transition-colors"><Heart className="w-5 h-5" /></Link>
                 <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="p-2 text-muted-foreground hover:text-gold transition-colors"><Bell className="w-5 h-5" /></Link>
               </div>
