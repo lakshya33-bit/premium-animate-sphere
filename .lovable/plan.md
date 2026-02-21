@@ -1,114 +1,111 @@
 
 
-# Know Your Cards Page -- Visual and UI Improvements
+# Banking Page -- Visual and UI Improvements
 
-A focused plan to improve the Cards listing, Expenses tab, Card Detail page, and the Quick View dialog with better visual hierarchy, richer interactions, and stronger data presentation.
+A focused plan to enhance the Banking page with better visual progression, richer tier comparisons, and missing page-level polish.
 
 ---
 
-## 1. Header Area -- Stats and Visual Depth
+## 1. Hero Area -- Tighten Spacing and Add Context
 
-**Current state:** The header has a title, subtitle, and a "Compare Cards" button floated to the right. It's clean but feels sparse -- no indication of how many cards exist, what card tiers are available, or any visual accent.
+**Current state:** The hero section has a large animated Landmark icon (96px), title, subtitle, and lots of vertical spacing. The icon + pulse animation is visually heavy, and the gap between the hero and the section toggle is too large (~64px). The page lacks a document title and BackToTop component.
 
 **Improvements:**
-- Add summary stats pills below the subtitle (e.g., "6 Premium Cards | 4 Issuers | ₹499 - ₹15,000 range") matching the style used on the Vouchers page
-- Add a subtle gold gradient accent behind the header area (consistent with Homepage and Vouchers)
-- Set document title to "Know Your Cards | CardPerks"
+- Reduce the hero icon size from 96px to 72px and tighten the spacing below it (mb-8 to mb-6)
+- Reduce spacing between hero and section toggle (mb-16 to mb-10)
+- Reduce spacing between section toggle and stats row (mb-12 to mb-8)
+- Add a subtle gold gradient accent behind the entire header area (matching Homepage and Vouchers pattern)
+- Set document title to "Banking | CardPerks"
 - Add BackToTop component
 
 ---
 
-## 2. Cards Tab -- Filter and Sort Controls
+## 2. Bank Filter Pills -- Visual Weight and Active Indicator
 
-**Current state:** All 6 cards are shown in a flat 3-column grid with no way to filter or sort. Every card has equal visual weight.
+**Current state:** Bank filter pills are plain glass-card buttons with gold background on active. They work but all look the same weight, and there's no indication of how many tiers each bank has.
 
 **Improvements:**
-- Add filter pills by card type (All, Premium, Super Premium, Ultra Premium, Co-branded) with item counts
-- Add sort options: "Sort by: Rating | Fee (Low-High) | Fee (High-Low)" -- compact inline buttons like Vouchers page
-- Add a results count indicator: "Showing 6 cards"
-- Add a "Top Pick" or "Editor's Choice" badge on the highest-rated card (ICICI Emeralde Private, 4.9 rating)
+- Add a tier count badge next to each bank name (e.g., "HDFC Bank (4)", "SBI (2)")
+- Add a small colored dot or accent using the bank's brand color next to the name for visual differentiation
+- Reduce spacing between filter pills and tier cards (mb-14 to mb-8)
 
 ---
 
-## 3. Card Grid -- Visual Enhancements
+## 3. Tier Cards -- Visual Progression and Hierarchy
 
-**Current state:** Cards show image, rating badge, favorite button, name, issuer info, Fee/Rewards/Lounge stats, Quick View, Full View, Compare toggle, and "Add to My Cards" button. The card layout is dense with 4 action buttons stacked.
+**Current state:** All four HDFC tiers look nearly identical in weight. The tier color is subtle (only in the icon and header gradient). There's no visual signal that Private Banking is "higher" than Classic. The cards are dense with eligibility, cards, benefits, RM badge, and key takeaways all stacked.
 
 **Improvements:**
-- Add a card-type tier badge (e.g., "Ultra Premium", "Co-branded") in the top area with a subtle color coding
-- Add the "bestFor" tags (currently only shown in Quick View/Detail) as 1-2 small pills below the card name for instant scanning
-- Add a subtle brand-color glow shadow on card hover (using the card's `color` property), matching the Vouchers card hover treatment
-- Consolidate the action row: merge "Add to My Cards" into the Quick View/Full View row as a small icon button instead of a full-width separate row
+- Add a tier progression indicator -- a subtle top border bar using the tier's color (2px solid line at the very top of each card)
+- Add a tier rank badge (e.g., "Tier 1", "Tier 2", etc.) as a small pill in the top-right of the header area, showing the progression
+- Add an "Invite Only" badge on Private Banking tiers (when eligibility text contains "invitation only")
+- Use different Diamond/Crown/Star icons per tier level instead of the same Diamond icon for all tiers -- Classic gets a simple icon, Private Banking gets a Crown
+- Add a subtle hover lift effect (translateY -4px) for better interactivity feedback
 
 ---
 
-## 4. Card Quick View Dialog -- Entry Animation and Content
+## 4. Eligibility Section -- Readability Improvement
 
-**Current state:** The Quick View dialog has card image, name, Fee/Rewards/Lounge stats, key perks, voucher rates, bestFor tags, and a "View Full Details" link. It's functional but opens without animation and looks plain.
+**Current state:** The eligibility text is a dense paragraph with multiple conditions separated by "OR". It's hard to quickly scan what qualifies you.
 
 **Improvements:**
-- Add entry animation: scale from 0.95 with opacity fade (matching Vouchers Quick View)
-- Add the card's brand-color tinted background (subtle gradient behind the header)
-- Add the card rating with star next to the name
-- Add min. income requirement as a small note below the stats
-- Add card image with the realistic aspect ratio (currently only showing a small 20x50px thumbnail)
+- Parse the eligibility text and display each "OR" condition as a separate bullet/line item with a small "OR" divider between them
+- Highlight key monetary values (amounts like "Rs 1 Lakh", "Rs 10 Crores") in gold text for quick scanning
 
 ---
 
-## 5. Expenses Tab -- Visual Polish and Interactivity
+## 5. Cross-Bank Comparison Feature
 
-**Current state:** Four stat cards, Monthly Spending line chart, Category Breakdown donut chart, Card-wise Spending bar chart, and Recent Transactions table. All hardcoded data. The charts work well but the section feels disconnected from the Cards tab.
+**Current state:** You can only view one bank at a time. There's no way to compare similar tiers across banks (e.g., HDFC Imperia vs ICICI Wealth vs Axis Burgundy).
 
 **Improvements:**
-- Add category icons next to category names in the breakdown legend (the icon data already exists in `categoryExpenses`)
-- Add percentage labels to the donut chart legend (e.g., "Shopping 34.7%")
-- Add color-coded card indicator dots in the Recent Transactions table (using the card's brand color)
-- Add an "Add Expense" floating action button that opens the AddExpenseDialog (the component exists but isn't used on this page)
-- Style the stat cards with subtle gradient backgrounds matching their trend direction (green tint for up, red tint for down)
+- Add a "Compare Tiers" section below the current bank tiers showing a quick comparison table of all banks' equivalent tiers side-by-side
+- The table would show: Bank Name, Tier Name, Min. AMB, RM status, Lounge Access (extracted from benefits), and number of benefits
+- Style it as a glass-card table with bank brand-color accents
 
 ---
 
-## 6. Card Detail Page -- Content Gaps
+## 6. Family Banking Tab -- Content Richness
 
-**Current state:** The detail page has breadcrumbs, header card with image/stats, Card Details section, Key Perks, Milestones, Insurance, Similar Cards, and a sticky "Add to My Cards" CTA. It's comprehensive but has some polish opportunities.
+**Current state:** The Family Banking section is a placeholder with three generic feature cards and a "Ask Perk AI" link. It feels empty compared to the Wealth Banking tab.
 
 **Improvements:**
-- Add favorite button and share button to the header (matching the Voucher Detail treatment)
-- Add a brand-color tinted background to the header card (using card.color at 5% opacity)
-- Show the card rating as star badges in the header alongside the network badge
-- Add a "Best For" visual callout section -- currently the bestFor tags are small pills; make them larger feature cards with icons
-- Add "Why This Card?" section with a short pros/cons summary derived from the card data (e.g., pros: unlimited lounge, 4% rewards; cons: ₹15,000 fee, ₹40L income requirement)
-- Set document title to "[Card Name] | CardPerks"
-- Add BackToTop component
+- Add a "How Family Banking Works" step flow (similar to homepage How It Works) with 3 steps: 1. Pool balances, 2. Qualify for higher tier, 3. Share benefits
+- Add specific bank examples: "HDFC Family Banking requires combined AMB of Rs 30L for Imperia benefits"
+- Add a comparison of which banks offer family banking programs with a small card for each
 
 ---
 
-## 7. Compare Bar -- Card Thumbnails
+## 7. Section Toggle -- Active State Animation
 
-**Current state:** The floating compare bar at the bottom shows colored squares with CreditCard icons for selected cards. This was flagged in the original audit.
+**Current state:** The Wealth/Family toggle buttons switch content but the transition feels abrupt. The active state is just a gold background.
 
 **Improvements:**
-- Replace the colored icon squares with actual card image thumbnails (small rounded previews)
-- Add the card name as a tooltip on hover over each thumbnail
-- Show the card name below each thumbnail in small text for clarity
+- Add a subtle sliding background indicator (like a tab underline that slides between the two options)
+- Add content transition animation when switching between tabs (fade + slide)
 
 ---
 
 ## Technical Details
 
 ### Files to Modify
-- `src/pages/KnowYourCards.tsx` -- Header stats, filter/sort controls, card grid badges, expenses tab polish, compare bar thumbnails, document title, BackToTop
-- `src/pages/CardDetail.tsx` -- Favorite/share buttons, brand-color background, "Best For" section, "Why This Card?" pros/cons, document title, BackToTop
+- `src/pages/Banking.tsx` -- All improvements (hero spacing, bank pill counts, tier card progression, eligibility parsing, cross-bank comparison, family banking content, document title, BackToTop)
 
 ### No New Dependencies Required
-All changes use existing framer-motion, lucide-react, recharts, and Tailwind utilities. The AddExpenseDialog component already exists.
+All changes use existing framer-motion, lucide-react, and Tailwind utilities.
+
+### Data Considerations
+- Tier icons can be mapped by index: `[Landmark, Diamond, Crown, Award]` for ascending tiers
+- "Invite Only" detection: check if `tier.eligibility.toLowerCase().includes("invitation")`
+- Eligibility parsing: split on " OR " to create bullet items
+- Cross-bank comparison data can be derived from the existing `banks` array
 
 ### Implementation Order
-1. Header stats pills and gradient accent
-2. Filter/sort controls for Cards tab
-3. Card grid visual enhancements (tier badge, bestFor preview, hover glow)
-4. Quick View dialog animation and content boost
-5. Expenses tab category icons, percentages, card color dots, and Add Expense button
-6. Compare bar card thumbnails
-7. Card Detail page favorite/share, brand tint, "Why This Card?" section
+1. Hero spacing tightening and document title + BackToTop
+2. Bank filter pills with tier counts and brand-color dots
+3. Tier card visual progression (top border, rank badge, varied icons, invite-only badge)
+4. Eligibility text parsing into scannable bullet points
+5. Cross-bank comparison table
+6. Family Banking tab content enrichment
+7. Section toggle animation polish
 
