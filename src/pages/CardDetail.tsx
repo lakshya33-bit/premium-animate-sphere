@@ -1,12 +1,16 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Star, CreditCard, Shield, Gift, TrendingUp, Plane, Users, Check } from "lucide-react";
+import { ArrowLeft, Star, CreditCard, Shield, Gift, TrendingUp, Check, Wallet, ChevronRight, Home } from "lucide-react";
 import PageLayout from "@/components/PageLayout";
-import { getCardById } from "@/data/cards";
+import { getCardById, cards } from "@/data/cards";
+import { useMyCards } from "@/hooks/use-my-cards";
 
 export default function CardDetail() {
   const { id } = useParams<{ id: string }>();
   const card = getCardById(id || "");
+  const { toggle: toggleMyCard, has: isMyCard } = useMyCards();
+
+  const similarCards = cards.filter((c) => c.id !== id).slice(0, 3);
 
   if (!card) {
     return (
@@ -23,9 +27,14 @@ export default function CardDetail() {
     <PageLayout>
       <section className="py-12">
         <div className="container mx-auto px-4 max-w-4xl">
-          <Link to="/cards" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-gold transition-colors mb-8">
-            <ArrowLeft className="w-4 h-4" /> Back to Cards
-          </Link>
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-1.5 text-xs text-muted-foreground mb-6">
+            <Link to="/" className="hover:text-gold transition-colors flex items-center gap-1"><Home className="w-3 h-3" /> Home</Link>
+            <ChevronRight className="w-3 h-3" />
+            <Link to="/cards" className="hover:text-gold transition-colors">Know Your Cards</Link>
+            <ChevronRight className="w-3 h-3" />
+            <span className="text-foreground">{card.name}</span>
+          </nav>
 
           {/* Header */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass-card rounded-2xl overflow-hidden mb-8">
@@ -33,7 +42,12 @@ export default function CardDetail() {
               <div className="flex flex-col sm:flex-row items-start gap-6">
                 {/* Card image */}
                 <div className="w-full sm:w-64 flex-shrink-0">
-                  <div className="relative aspect-[1.586/1] rounded-xl overflow-hidden shadow-2xl shadow-black/50">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="relative aspect-[1.586/1] rounded-xl overflow-hidden shadow-2xl shadow-black/50"
+                  >
                     {card.image ? (
                       <img src={card.image} alt={card.name} className="w-full h-full object-cover" />
                     ) : (
@@ -47,7 +61,7 @@ export default function CardDetail() {
                       </div>
                     )}
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent pointer-events-none" />
-                  </div>
+                  </motion.div>
                 </div>
                 {/* Card info */}
                 <div className="flex-1">
@@ -85,7 +99,6 @@ export default function CardDetail() {
 
           {/* Details grid */}
           <div className="grid md:grid-cols-2 gap-6 mb-8">
-            {/* Key Info */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card rounded-2xl p-6 space-y-5">
               <h3 className="font-serif text-lg font-semibold flex items-center gap-2"><CreditCard className="w-4 h-4 text-gold" /> Card Details</h3>
               {[
@@ -102,7 +115,6 @@ export default function CardDetail() {
               ))}
             </motion.div>
 
-            {/* Perks & Vouchers */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card rounded-2xl p-6 space-y-5">
               <div>
                 <h3 className="font-serif text-lg font-semibold mb-3 flex items-center gap-2"><Gift className="w-4 h-4 text-gold" /> Key Perks</h3>
@@ -127,7 +139,7 @@ export default function CardDetail() {
           </div>
 
           {/* Milestones & Insurance */}
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass-card rounded-2xl p-6">
               <h3 className="font-serif text-lg font-semibold mb-4 flex items-center gap-2"><TrendingUp className="w-4 h-4 text-gold" /> Milestone Benefits</h3>
               <div className="space-y-3">
@@ -154,6 +166,63 @@ export default function CardDetail() {
               </div>
             </motion.div>
           </div>
+
+          {/* Similar Cards */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mb-8">
+            <h3 className="font-serif text-lg font-semibold mb-4">Similar Cards</h3>
+            <div className="grid sm:grid-cols-3 gap-4">
+              {similarCards.map((c) => (
+                <Link key={c.id} to={`/cards/${c.id}`} className="glass-card rounded-xl overflow-hidden group hover:shadow-lg hover:shadow-gold/10 hover:-translate-y-1 transition-all duration-300">
+                  <div className="relative aspect-[1.586/1] overflow-hidden">
+                    {c.image ? (
+                      <img src={c.image} alt={c.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    ) : (
+                      <div className="w-full h-full" style={{ background: `linear-gradient(135deg, ${c.color}, ${c.color}66)` }} />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+                    <div className="absolute bottom-2 left-3 right-3">
+                      <h4 className="font-serif font-bold text-xs">{c.name}</h4>
+                      <p className="text-[10px] text-muted-foreground">{c.issuer}</p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Sticky CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="sticky bottom-6 z-30"
+          >
+            <div className="glass-card rounded-2xl border border-gold/20 shadow-2xl shadow-gold/10 p-4 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-[26px] rounded-lg overflow-hidden shadow-md flex-shrink-0">
+                  {card.image ? (
+                    <img src={card.image} alt={card.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full" style={{ background: `linear-gradient(135deg, ${card.color}, ${card.color}88)` }} />
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm font-semibold">{card.name}</p>
+                  <p className="text-[10px] text-muted-foreground">{card.fee}/yr</p>
+                </div>
+              </div>
+              <button
+                onClick={() => toggleMyCard(card.id)}
+                className={`px-5 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition-all ${
+                  isMyCard(card.id)
+                    ? "bg-gold/15 text-gold border border-gold/30"
+                    : "gold-btn"
+                }`}
+              >
+                {isMyCard(card.id) ? <><Check className="w-4 h-4" /> In My Cards</> : <><Wallet className="w-4 h-4" /> Add to My Cards</>}
+              </button>
+            </div>
+          </motion.div>
         </div>
       </section>
     </PageLayout>

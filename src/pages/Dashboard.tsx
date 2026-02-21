@@ -7,22 +7,10 @@ import PageLayout from "@/components/PageLayout";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, AreaChart, Area } from "recharts";
 import { useToast } from "@/hooks/use-toast";
 import { cards as allCards } from "@/data/cards";
-
-const savedCardIds = ["icici-emeralde-private", "hsbc-premier", "icici-rubyx"];
-const savedCards = allCards.filter((c) => savedCardIds.includes(c.id));
-
-const favoriteVouchers = [
-  { name: "Flipkart", discount: "Up to 7%", color: "#F8C534", id: "flipkart" },
-  { name: "Zomato", discount: "Up to 10%", color: "#E23744", id: "zomato" },
-  { name: "Amazon", discount: "Up to 6%", color: "#FF9900", id: "amazon" },
-  { name: "MakeMyTrip", discount: "Up to 12%", color: "#EE2E24", id: "makemytrip" },
-];
-
-const savedGuides = [
-  { title: "SmartBuy 10x Strategy", slug: "smartbuy-10x-hack", readTime: "12 min" },
-  { title: "Credit Card Rewards 101", slug: "credit-card-rewards-101", readTime: "8 min" },
-  { title: "Voucher Stacking Tips", slug: "voucher-stacking", readTime: "9 min" },
-];
+import { useMyCards } from "@/hooks/use-my-cards";
+import { useFavorites } from "@/hooks/use-favorites";
+import { vouchers } from "@/data/vouchers";
+import { guides } from "@/data/guides";
 
 const rewardsSummary = [
   { month: "Sep", earned: 2400 },
@@ -35,18 +23,10 @@ const rewardsSummary = [
 
 const activity = [
   { text: "Redeemed ₹2,000 Flipkart voucher", time: "2 hours ago", icon: Gift },
-  { text: "Added Axis Atlas to My Cards", time: "1 day ago", icon: CreditCard },
+  { text: "Added ICICI Emeralde Private to My Cards", time: "1 day ago", icon: CreditCard },
   { text: "Saved Voucher Stacking guide", time: "2 days ago", icon: BookOpen },
-  { text: "Earned 1,500 points on HDFC Infinia", time: "3 days ago", icon: Star },
-  { text: "Compared ICICI Emeralde vs Diners Black", time: "5 days ago", icon: TrendingUp },
-];
-
-const sidebarItems = [
-  { icon: CreditCard, label: "My Cards", count: 3, tab: "cards" },
-  { icon: Heart, label: "Favorites", count: 4, tab: "favorites" },
-  { icon: BookOpen, label: "Saved Guides", count: 3, tab: "favorites" },
-  { icon: Bell, label: "Notifications", count: 2, tab: "activity" },
-  { icon: Settings, label: "Settings", tab: null as string | null },
+  { text: "Earned 1,500 points on HSBC Premier", time: "3 days ago", icon: Star },
+  { text: "Compared ICICI Emeralde vs Axis Neo", time: "5 days ago", icon: TrendingUp },
 ];
 
 const sparklineRewards = [
@@ -70,6 +50,21 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("cards");
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { has: isMyCard, count: myCardCount } = useMyCards();
+  const { isFav: isVoucherFav } = useFavorites("voucher");
+  const { isFav: isGuideFav } = useFavorites("guide");
+
+  const savedCards = allCards.filter((c) => isMyCard(c.id));
+  const favoriteVoucherList = vouchers.filter((v) => isVoucherFav(v.id));
+  const savedGuideList = guides.filter((g) => isGuideFav(g.slug));
+
+  const sidebarItems = [
+    { icon: CreditCard, label: "My Cards", count: savedCards.length, tab: "cards" },
+    { icon: Heart, label: "Favorites", count: favoriteVoucherList.length + savedGuideList.length, tab: "favorites" },
+    { icon: BookOpen, label: "Saved Guides", count: savedGuideList.length, tab: "favorites" },
+    { icon: Bell, label: "Notifications", count: 2, tab: "activity" },
+    { icon: Settings, label: "Settings", tab: null as string | null },
+  ];
 
   const handleSidebarClick = (item: typeof sidebarItems[0]) => {
     if (item.tab) {
@@ -86,7 +81,7 @@ export default function Dashboard() {
 
   const statCards = [
     { label: "Total Rewards", value: "₹17,800", icon: IndianRupee, sub: "Lifetime earned", sparkline: sparklineRewards, color: "hsl(var(--gold))" },
-    { label: "Active Cards", value: "3", icon: CreditCard, sub: "Cards tracked", sparkline: sparklineCards, color: "hsl(var(--gold-light))" },
+    { label: "Active Cards", value: String(savedCards.length), icon: CreditCard, sub: "Cards tracked", sparkline: sparklineCards, color: "hsl(var(--gold-light))" },
     { label: "Vouchers Redeemed", value: "24", icon: Gift, sub: "This year", sparkline: sparklineVouchers, color: "hsl(var(--gold))" },
   ];
 
@@ -148,7 +143,7 @@ export default function Dashboard() {
                   >
                     <span className="flex items-center gap-2"><item.icon className="w-4 h-4" /> {item.label}</span>
                     <span className="flex items-center gap-1">
-                      {item.count && <span className="text-[10px] bg-gold/10 text-gold px-2 py-0.5 rounded-full">{item.count}</span>}
+                      {item.count !== undefined && item.count > 0 && <span className="text-[10px] bg-gold/10 text-gold px-2 py-0.5 rounded-full">{item.count}</span>}
                       <ChevronRight className="w-3 h-3 text-muted-foreground" />
                     </span>
                   </button>
@@ -210,60 +205,86 @@ export default function Dashboard() {
                     transition={{ duration: 0.25 }}
                   >
                     <TabsContent value="cards" forceMount className={activeTab !== "cards" ? "hidden" : ""}>
-                      <div className="space-y-4">
-                        {savedCards.map((card, i) => (
-                          <motion.div key={card.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
-                            <Link to={`/cards/${card.id}`} className="glass-card rounded-xl p-4 flex items-center justify-between group hover:border-gold/30 hover:shadow-lg hover:shadow-gold/5 transition-all block">
-                              <div className="flex items-center gap-4">
-                                <div className="w-16 h-10 rounded-lg overflow-hidden shadow-lg shadow-black/30 flex-shrink-0">
-                                  {card.image ? (
-                                    <img src={card.image} alt={card.name} className="w-full h-full object-cover" />
-                                  ) : (
-                                    <div className="w-full h-full" style={{ background: `linear-gradient(135deg, ${card.color}, ${card.color}88)` }} />
-                                  )}
+                      {savedCards.length === 0 ? (
+                        <div className="text-center py-16 glass-card rounded-2xl">
+                          <CreditCard className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
+                          <p className="text-lg font-serif font-semibold mb-2">No cards added yet</p>
+                          <p className="text-sm text-muted-foreground mb-4">Add cards from the catalog to track them here.</p>
+                          <Link to="/cards" className="gold-btn px-6 py-2.5 rounded-xl text-sm inline-block">Browse Cards</Link>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {savedCards.map((card, i) => (
+                            <motion.div key={card.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
+                              <Link to={`/cards/${card.id}`} className="glass-card rounded-xl p-4 flex items-center justify-between group hover:border-gold/30 hover:shadow-lg hover:shadow-gold/5 transition-all block">
+                                <div className="flex items-center gap-4">
+                                  <div className="w-16 h-10 rounded-lg overflow-hidden shadow-lg shadow-black/30 flex-shrink-0">
+                                    {card.image ? (
+                                      <img src={card.image} alt={card.name} className="w-full h-full object-cover" />
+                                    ) : (
+                                      <div className="w-full h-full" style={{ background: `linear-gradient(135deg, ${card.color}, ${card.color}88)` }} />
+                                    )}
+                                  </div>
+                                  <div>
+                                    <h3 className="font-semibold text-sm group-hover:text-gold transition-colors">{card.name}</h3>
+                                    <p className="text-xs text-muted-foreground">{card.network} · {card.issuer}</p>
+                                  </div>
                                 </div>
-                                <div>
-                                  <h3 className="font-semibold text-sm group-hover:text-gold transition-colors">{card.name}</h3>
-                                  <p className="text-xs text-muted-foreground">{card.network} · {card.issuer}</p>
-                                </div>
-                              </div>
-                              <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-gold transition-colors" />
-                            </Link>
-                          </motion.div>
-                        ))}
-                        <Link to="/cards" className="block text-center text-sm text-gold hover:text-gold-light transition-colors mt-4">+ Add more cards</Link>
-                      </div>
+                                <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-gold transition-colors" />
+                              </Link>
+                            </motion.div>
+                          ))}
+                          <Link to="/cards" className="block text-center text-sm text-gold hover:text-gold-light transition-colors mt-4">+ Add more cards</Link>
+                        </div>
+                      )}
                     </TabsContent>
 
                     <TabsContent value="favorites" forceMount className={activeTab !== "favorites" ? "hidden" : ""}>
-                      <div className="grid sm:grid-cols-2 gap-4 mb-6">
-                        {favoriteVouchers.map((v, i) => (
-                          <motion.div key={v.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
-                            <Link to={`/vouchers/${v.id}`} className="glass-card rounded-xl p-4 flex items-center justify-between group hover:border-gold/30 hover:shadow-lg hover:shadow-gold/5 transition-all block">
-                              <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg" style={{ backgroundColor: `${v.color}15` }} />
-                                <div>
-                                  <h3 className="font-semibold text-sm group-hover:text-gold transition-colors">{v.name}</h3>
-                                  <p className="text-xs text-muted-foreground">{v.discount}</p>
-                                </div>
-                              </div>
-                              <Heart className="w-4 h-4 text-gold fill-gold" />
-                            </Link>
-                          </motion.div>
-                        ))}
-                      </div>
-                      <h3 className="font-semibold text-sm mb-3 mt-8">Saved Guides</h3>
-                      <div className="space-y-3">
-                        {savedGuides.map((g) => (
-                          <Link key={g.slug} to={`/guides/${g.slug}`} className="glass-card rounded-xl p-4 flex items-center justify-between group hover:border-gold/30 hover:shadow-lg hover:shadow-gold/5 transition-all block">
-                            <div>
-                              <h4 className="text-sm font-medium group-hover:text-gold transition-colors">{g.title}</h4>
-                              <p className="text-xs text-muted-foreground">{g.readTime} read</p>
+                      {favoriteVoucherList.length === 0 && savedGuideList.length === 0 ? (
+                        <div className="text-center py-16 glass-card rounded-2xl">
+                          <Heart className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
+                          <p className="text-lg font-serif font-semibold mb-2">No favorites yet</p>
+                          <p className="text-sm text-muted-foreground mb-4">Heart vouchers and guides to save them here.</p>
+                          <Link to="/vouchers" className="gold-btn px-6 py-2.5 rounded-xl text-sm inline-block">Browse Vouchers</Link>
+                        </div>
+                      ) : (
+                        <>
+                          {favoriteVoucherList.length > 0 && (
+                            <div className="grid sm:grid-cols-2 gap-4 mb-6">
+                              {favoriteVoucherList.map((v, i) => (
+                                <motion.div key={v.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
+                                  <Link to={`/vouchers/${v.id}`} className="glass-card rounded-xl p-4 flex items-center justify-between group hover:border-gold/30 hover:shadow-lg hover:shadow-gold/5 transition-all block">
+                                    <div className="flex items-center gap-3">
+                                      <div className="w-8 h-8 rounded-lg" style={{ backgroundColor: `${v.color}15` }} />
+                                      <div>
+                                        <h3 className="font-semibold text-sm group-hover:text-gold transition-colors">{v.name}</h3>
+                                        <p className="text-xs text-muted-foreground">{v.discount}</p>
+                                      </div>
+                                    </div>
+                                    <Heart className="w-4 h-4 text-gold fill-gold" />
+                                  </Link>
+                                </motion.div>
+                              ))}
                             </div>
-                            <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                          </Link>
-                        ))}
-                      </div>
+                          )}
+                          {savedGuideList.length > 0 && (
+                            <>
+                              <h3 className="font-semibold text-sm mb-3 mt-8">Saved Guides</h3>
+                              <div className="space-y-3">
+                                {savedGuideList.map((g) => (
+                                  <Link key={g.slug} to={`/guides/${g.slug}`} className="glass-card rounded-xl p-4 flex items-center justify-between group hover:border-gold/30 hover:shadow-lg hover:shadow-gold/5 transition-all block">
+                                    <div>
+                                      <h4 className="text-sm font-medium group-hover:text-gold transition-colors">{g.title}</h4>
+                                      <p className="text-xs text-muted-foreground">{g.readTime} read</p>
+                                    </div>
+                                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                                  </Link>
+                                ))}
+                              </div>
+                            </>
+                          )}
+                        </>
+                      )}
                     </TabsContent>
 
                     <TabsContent value="rewards" forceMount className={activeTab !== "rewards" ? "hidden" : ""}>

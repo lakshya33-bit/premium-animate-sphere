@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Heart, Bell, Menu, X, ChevronDown, User, Sun, Moon, Wallet } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/components/ThemeProvider";
@@ -25,6 +25,14 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const location = useLocation();
+
+  const isActive = (href: string) => {
+    if (href === "/") return location.pathname === "/";
+    return location.pathname.startsWith(href);
+  };
+
+  const isMoreActive = moreLinks.some((l) => isActive(l.href));
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -53,17 +61,23 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 to={link.href}
-                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-gold transition-colors relative group"
+                className={`px-4 py-2 text-sm font-medium transition-colors relative group ${
+                  isActive(link.href) ? "text-gold" : "text-muted-foreground hover:text-gold"
+                }`}
               >
                 {link.label}
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-gold transition-all duration-300 group-hover:w-3/4" />
+                <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-gold transition-all duration-300 ${
+                  isActive(link.href) ? "w-3/4" : "w-0 group-hover:w-3/4"
+                }`} />
               </Link>
             ))}
             {/* More dropdown */}
             <div className="relative">
               <button
                 onClick={() => setMoreOpen(!moreOpen)}
-                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-gold transition-colors flex items-center gap-1"
+                className={`px-4 py-2 text-sm font-medium transition-colors flex items-center gap-1 ${
+                  isMoreActive ? "text-gold" : "text-muted-foreground hover:text-gold"
+                }`}
               >
                 More <ChevronDown className="w-3 h-3" />
               </button>
@@ -80,7 +94,9 @@ export default function Navbar() {
                       <Link
                         key={link.href}
                         to={link.href}
-                        className="block px-4 py-2.5 text-sm text-muted-foreground hover:text-gold hover:bg-secondary/50 transition-colors"
+                        className={`block px-4 py-2.5 text-sm transition-colors ${
+                          isActive(link.href) ? "text-gold bg-gold/10" : "text-muted-foreground hover:text-gold hover:bg-secondary/50"
+                        }`}
                       >
                         {link.label}
                       </Link>
@@ -142,7 +158,9 @@ export default function Navbar() {
                   key={link.href}
                   to={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-gold hover:bg-secondary/30 rounded-lg transition-colors"
+                  className={`px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+                    isActive(link.href) ? "bg-gold/10 text-gold" : "text-muted-foreground hover:text-gold hover:bg-secondary/30"
+                  }`}
                 >
                   {link.label}
                 </Link>
@@ -152,7 +170,9 @@ export default function Navbar() {
                   key={link.href}
                   to={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-gold hover:bg-secondary/30 rounded-lg transition-colors"
+                  className={`px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+                    isActive(link.href) ? "bg-gold/10 text-gold" : "text-muted-foreground hover:text-gold hover:bg-secondary/30"
+                  }`}
                 >
                   {link.label}
                 </Link>

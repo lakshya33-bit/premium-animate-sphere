@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { motion } from "framer-motion";
+import { Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import FloatingParticles from "@/components/FloatingParticles";
 import logo from "@/assets/cardperks-logo.png";
@@ -19,8 +20,18 @@ const fieldVariants = {
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [emailError, setEmailError] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const validateEmail = (val: string) => {
+    if (val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+      setEmailError("Please enter a valid email");
+    } else {
+      setEmailError("");
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,6 +39,7 @@ export default function Login() {
       toast({ title: "Missing fields", description: "Please enter both email and password.", variant: "destructive" });
       return;
     }
+    if (emailError) return;
     toast({ title: "Welcome back!", description: "You've signed in successfully." });
     navigate("/dashboard");
   };
@@ -54,14 +66,29 @@ export default function Login() {
             <form className="space-y-5" onSubmit={handleSubmit}>
               <motion.div custom={0} variants={fieldVariants} initial="hidden" animate="visible" className="space-y-2">
                 <Label htmlFor="email" className="text-sm">Email</Label>
-                <Input id="email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="bg-secondary/50 border-border/50 focus:border-gold/50 focus:shadow-[0_0_0_3px_hsl(var(--gold)/0.1)] transition-all" />
+                <Input
+                  id="email" type="email" placeholder="you@example.com" value={email}
+                  onChange={(e) => { setEmail(e.target.value); validateEmail(e.target.value); }}
+                  onBlur={() => validateEmail(email)}
+                  className={`bg-secondary/50 border-border/50 focus:border-gold/50 focus:shadow-[0_0_0_3px_hsl(var(--gold)/0.1)] transition-all ${emailError ? "border-destructive" : ""}`}
+                />
+                {emailError && <p className="text-[11px] text-destructive">{emailError}</p>}
               </motion.div>
               <motion.div custom={1} variants={fieldVariants} initial="hidden" animate="visible" className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password" className="text-sm">Password</Label>
                   <button type="button" onClick={handleForgotPassword} className="text-xs text-gold hover:text-gold-light transition-colors">Forgot password?</button>
                 </div>
-                <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="bg-secondary/50 border-border/50 focus:border-gold/50 focus:shadow-[0_0_0_3px_hsl(var(--gold)/0.1)] transition-all" />
+                <div className="relative">
+                  <Input
+                    id="password" type={showPassword ? "text" : "password"} placeholder="••••••••" value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="bg-secondary/50 border-border/50 focus:border-gold/50 focus:shadow-[0_0_0_3px_hsl(var(--gold)/0.1)] transition-all pr-10"
+                  />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </motion.div>
               <motion.div custom={2} variants={fieldVariants} initial="hidden" animate="visible" className="flex items-center gap-2">
                 <Checkbox id="remember" />
