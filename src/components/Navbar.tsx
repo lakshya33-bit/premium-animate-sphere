@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Heart, Bell, Moon, Sun, Menu, X, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import logo from "@/assets/cardperks-logo.png";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -39,12 +40,7 @@ export default function Navbar() {
         <div className="container mx-auto flex items-center justify-between h-16 px-4 lg:px-8">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center font-serif font-bold text-background text-sm">
-              CP
-            </div>
-            <span className="font-serif text-xl font-bold text-foreground group-hover:text-gold transition-colors">
-              Card<span className="text-gold">Perks</span>
-            </span>
+            <img src={logo} alt="CardPerks" className="h-9 w-auto rounded-lg" />
           </Link>
 
           {/* Desktop Nav */}

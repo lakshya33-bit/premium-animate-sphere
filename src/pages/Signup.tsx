@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import { Heart, TrendingUp, Sparkles } from "lucide-react";
+import logo from "@/assets/cardperks-logo.png";
 
 const features = [
   { icon: Heart, text: "Save favourites & wishlists" },
@@ -21,11 +22,8 @@ export default function Signup() {
         transition={{ duration: 0.6 }}
         className="w-full max-w-lg"
       >
-        <Link to="/" className="flex items-center justify-center gap-2 mb-10">
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center font-serif font-bold text-background text-sm">
-            CP
-          </div>
-          <span className="font-serif text-2xl font-bold">Card<span className="text-gold">Perks</span></span>
+        <Link to="/" className="flex items-center justify-center mb-10">
+          <img src={logo} alt="CardPerks" className="h-12 w-auto rounded-lg" />
         </Link>
 
         <div className="glass-card rounded-2xl p-8">
