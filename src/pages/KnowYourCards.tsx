@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CreditCard, Star, TrendingUp, TrendingDown, IndianRupee, PieChart, ArrowUpDown, Receipt, ShoppingBag, UtensilsCrossed, Car, Fuel, Plane, Smartphone, Eye, ExternalLink, Check, X, Heart, ArrowRight, GitCompare } from "lucide-react";
+import { CreditCard, Star, TrendingUp, TrendingDown, IndianRupee, PieChart, ArrowUpDown, Receipt, ShoppingBag, UtensilsCrossed, Car, Fuel, Plane, Smartphone, Eye, ExternalLink, Check, X, Heart, ArrowRight, GitCompare, Plus, Wallet } from "lucide-react";
 import { useFavorites } from "@/hooks/use-favorites";
+import { useMyCards } from "@/hooks/use-my-cards";
 import FavoriteButton from "@/components/FavoriteButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -87,6 +88,7 @@ function CardQuickView({ card, open, onClose }: { card: CardType | null; open: b
 export default function KnowYourCards() {
   const [quickViewCard, setQuickViewCard] = useState<CardType | null>(null);
   const { toggle: toggleFav, isFav } = useFavorites("card");
+  const { toggle: toggleMyCard, has: isMyCard } = useMyCards();
   const [compareList, setCompareList] = useState<string[]>([]);
   const navigate = useNavigate();
 
@@ -159,7 +161,7 @@ export default function KnowYourCards() {
                           <div className="text-center bg-secondary/30 rounded-xl py-2"><p className="text-[10px] text-muted-foreground uppercase">Rewards</p><p className="text-sm font-semibold text-gold">{card.rewards}</p></div>
                           <div className="text-center bg-secondary/30 rounded-xl py-2"><p className="text-[10px] text-muted-foreground uppercase">Lounge</p><p className="text-sm font-semibold">{card.lounge}</p></div>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 mb-2">
                           <button onClick={() => setQuickViewCard(card)} className="flex-1 text-xs py-2 rounded-lg gold-outline-btn flex items-center justify-center gap-1"><Eye className="w-3 h-3" /> Quick View</button>
                           <Link to={`/cards/${card.id}`} className="flex-1 text-xs py-2 rounded-lg gold-btn flex items-center justify-center gap-1"><ExternalLink className="w-3 h-3" /> Full View</Link>
                           <button
@@ -173,6 +175,16 @@ export default function KnowYourCards() {
                             {isSelected ? <Check className="w-3 h-3" /> : <GitCompare className="w-3 h-3" />}
                           </button>
                         </div>
+                        <button
+                          onClick={() => toggleMyCard(card.id)}
+                          className={`w-full text-xs py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 font-medium ${
+                            isMyCard(card.id)
+                              ? "bg-gold/15 text-gold border border-gold/30"
+                              : "glass-card hover:border-gold/30 text-muted-foreground hover:text-gold"
+                          }`}
+                        >
+                          {isMyCard(card.id) ? <><Check className="w-3 h-3" /> In My Cards</> : <><Wallet className="w-3 h-3" /> Add to My Cards</>}
+                        </button>
                       </div>
                     </motion.div>
                   );

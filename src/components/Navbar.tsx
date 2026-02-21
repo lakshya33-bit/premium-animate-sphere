@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Heart, Bell, Menu, X, ChevronDown, User, Sun, Moon } from "lucide-react";
+import { Heart, Bell, Menu, X, ChevronDown, User, Sun, Moon, CreditCard } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/components/ThemeProvider";
 import logo from "@/assets/cardperks-logo.png";
@@ -9,6 +9,7 @@ const navLinks = [
   { label: "Home", href: "/" },
   { label: "Vouchers", href: "/vouchers" },
   { label: "Know Your Cards", href: "/cards" },
+  { label: "My Cards", href: "/my-cards" },
   { label: "Banking", href: "/banking" },
   { label: "Perk AI", href: "/perk-ai" },
   { label: "Guides Hub", href: "/guides" },
@@ -16,7 +17,6 @@ const navLinks = [
 
 const moreLinks = [
   { label: "Compare Cards", href: "/compare" },
-  { label: "My Cards", href: "/my-cards" },
   { label: "About Us", href: "/about" },
   { label: "Privacy Policy", href: "/privacy" },
 ];
