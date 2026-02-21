@@ -1,126 +1,114 @@
 
 
-# Compare Cards Page -- Visual and UI Improvements
+# Favorites Page -- Visual and UI Improvements
 
-A focused plan to elevate the card comparison experience with better visual hierarchy, a proper sticky header, winner highlights, and missing page-level polish.
-
----
-
-## 1. Hero Area -- Gold Gradient, Document Title, BackToTop
-
-**Current state:** The hero is plain with no gold radial gradient accent (other pages now have this). No document title is set. No BackToTop component.
-
-**Improvements:**
-- Add the gold radial gradient accent behind the hero for site-wide consistency
-- Set document title to "Compare Cards | CardPerks"
-- Add BackToTop component
+A focused plan to polish the Favorites page with missing page-level consistency, better interactivity, and a richer empty/populated experience.
 
 ---
 
-## 2. Selected Card Slots -- Color Accent and Hover Polish
+## 1. Gold Gradient Accent, Document Title, and BackToTop
 
-**Current state:** All selected card slots look identical -- plain glass-card with no visual link to the card's brand color. The cards just sit flat with no interactivity feedback.
+**Current state:** No gold radial gradient behind the hero (other pages now have this). No document title is set. No BackToTop component.
 
 **Improvements:**
-- Add a 2px top border using the card's brand color on each selected slot (matching the Banking tier card pattern)
-- Add a subtle hover lift effect (translateY -2px) on the selected card slots
-- Add a subtle glow using the card's color behind the card image for visual richness
+- Add the subtle gold radial gradient accent behind the hero for site-wide consistency
+- Set document title to "My Favorites | CardPerks"
+- Add BackToTop component at the bottom
 
 ---
 
-## 3. Selected Card Slots -- Sticky on Scroll
+## 2. Category Breakdown Stats Row
 
-**Current state:** When the user scrolls down to see comparison rows, the selected card headers scroll away. There's no reference for which column belongs to which card -- you have to scroll back up.
+**Current state:** The hero shows a single "Items Saved" counter on the right. When the user has items across multiple categories, there's no at-a-glance breakdown without reading the filter pills.
 
 **Improvements:**
-- Make the selected card row sticky at the top (below navbar) when the user scrolls past it, so card names and images remain visible while browsing comparison fields
-- Use a compact sticky version: just the card image, name, and remove button in a smaller bar
-- Add a subtle blur backdrop for the sticky bar
+- Replace the single counter with a compact stats row (similar to the Guides Hub stats pattern) showing counts per category with icons: "3 Cards, 2 Vouchers, 1 Guide, 1 Banking"
+- Only show categories that have favorites (skip zero-count categories)
+- Keep the total count as the primary large number, with per-category counts as secondary
 
 ---
 
-## 4. Comparison Rows -- Winner Highlighting
+## 3. Remove Animation on Unfavorite
 
-**Current state:** All comparison field values look the same across cards. There's no visual signal for which card is "better" in a given field. Users have to mentally compare every row.
+**Current state:** Clicking the heart button on a favorited item instantly removes it from the list with no exit animation. Items just disappear and the grid snaps.
 
 **Improvements:**
-- For numeric/comparable fields (Annual Fee, Reward Value, Rating, Forex Markup), detect and highlight the best value with a subtle gold ring or badge
-- For "Annual Fee" and "Forex Markup": lowest is best (highlight with a small "Lowest" pill)
-- For "Reward Value" and "Rating": highest is best (highlight with a small "Best" pill)
-- Keep the highlight subtle -- a gold border or tiny pill, not overwhelming
+- Wrap each card item in an `AnimatePresence` with a fade + scale-down exit animation so removed items animate out gracefully
+- Use `layout` prop on the grid items so remaining cards smoothly reposition after removal
 
 ---
 
-## 5. Comparison Rows -- Grouped Sections with Dividers
+## 4. Empty State per Category
 
-**Current state:** All 11 standard fields and 5 list-based fields are stacked in one continuous flat list. There's no visual grouping, making it hard to scan for specific categories (fees vs. rewards vs. travel).
+**Current state:** When filtering by a specific category (e.g., "Guides") and there are no favorites in that category, nothing appears -- just blank space below the filter pills. The global empty state only shows when ALL categories are empty.
 
 **Improvements:**
-- Group the comparison fields into logical sections with a section heading divider:
-  - "Basics" -- Annual Fee, Network, Card Type, Issuer
-  - "Income and Rewards" -- Min Income, Reward Rate, Reward Value, Welcome Bonus
-  - "Travel and Forex" -- Lounge Access, Fuel Surcharge, Forex Markup
-  - "Perks and Benefits" -- Key Perks, Milestones, Insurance, Best For, Vouchers
-- Add a thin divider line and section label between groups
+- Add a per-category empty state when filtering to a specific tab with zero items: show the category icon, a message like "No favorite guides yet", and a CTA button to browse that category
+- Keep the global animated empty state for when totalCount is 0
 
 ---
 
-## 6. Empty State -- Popular Comparison Suggestions
+## 5. Card Section -- Quick Compare CTA
 
-**Current state:** When fewer than 2 cards are selected, the empty state just shows a credit card icon and text "Select at least 2 cards to compare." It's functional but misses an opportunity to guide users.
+**Current state:** Each card has a small compare icon button, but there's no way to quickly compare all favorited cards at once.
 
 **Improvements:**
-- Add 2-3 "Popular Comparisons" quick-start buttons below the empty state text
-- Each button pre-selects a commonly compared pair (e.g., "HSBC Premier vs ICICI Emeralde", "Axis Neo vs ICICI MakeMyTrip")
-- Clicking one auto-adds both cards to the comparison
-- Style as glass-card chips with both card images side-by-side
+- When 2+ cards are favorited, show a prominent "Compare All Favorites" button in the Cards section header that links to `/compare?cards=id1,id2,...` with all favorited card IDs pre-filled
+- This leverages the URL sync we just built in Compare Cards
 
 ---
 
-## 7. Share Comparison Button
+## 6. Voucher Cards -- Show Supported Card Brands
 
-**Current state:** No way to share or bookmark a comparison. The URL does support `?cards=id1,id2` via searchParams, but the URL is not updated as cards are added/removed.
+**Current state:** Voucher cards show the icon, name, category, discount, best rate, and a "View Details" link. They don't show which credit cards support the voucher, which is a key piece of information.
 
 **Improvements:**
-- Sync the URL search params as cards are added/removed (using `setSearchParams`)
-- Add a "Share Comparison" button next to the hero that copies the current URL with card IDs to clipboard
-- Show a sonner toast "Link copied!" on click
-- Only show the button when 2+ cards are selected
+- Add a row of small card brand pills (top 2-3 from `v.cards`) below the discount badge, truncated with a "+N more" indicator if there are many
+- This helps users quickly see if their cards are eligible
 
 ---
 
-## 8. Card Selector Dropdown -- Visual Improvement
+## 7. Guide Cards -- Add Description Preview
 
-**Current state:** The dropdown is functional but plain. Card images are tiny (40x26px). No card type or rating info shown.
+**Current state:** Guide cards show icon, category, title, read time, and a link. No description is shown, making it hard to remember why a guide was saved.
 
 **Improvements:**
-- Increase the card image size slightly (48x30px) and add the card's brand color as a subtle left border accent on each row
-- Show the card rating as a small star + number after the fee
-- Add a subtle separator between cards from different issuers for easier scanning
+- Add a 1-line truncated description below the title (`guide.description` with `line-clamp-1`)
+- Add the author name as a subtle metadata line
+
+---
+
+## 8. Banking Tier Cards -- Show Min Balance
+
+**Current state:** Banking tier cards show the tier name, bank name, RM badge, and eligible cards. They don't show the minimum balance requirement, which is a key differentiator.
+
+**Improvements:**
+- Add the minimum balance (e.g., "Min Balance: 10L") as a metadata line below the tier name
+- Show 2-3 key perks from the tier's perks list as compact pills
 
 ---
 
 ## Technical Details
 
 ### Files to Modify
-- `src/pages/CompareCards.tsx` -- All improvements (hero polish, sticky header, winner highlighting, grouped sections, empty state suggestions, share button, card selector enhancement, document title, BackToTop)
+- `src/pages/Favorites.tsx` -- All improvements (gold gradient, document title, BackToTop, stats row, exit animations, per-category empty state, compare CTA, voucher card brands, guide descriptions, banking balance)
 
 ### No New Dependencies Required
-All changes use existing framer-motion, lucide-react, sonner, react-router-dom, and Tailwind utilities.
+All changes use existing framer-motion, lucide-react, react-router-dom, and Tailwind utilities.
 
 ### Key Implementation Notes
-- **Sticky header:** Use a `useEffect` with an IntersectionObserver on the card selection grid. When it scrolls out of view, render a compact fixed bar with selected card thumbnails. Use `position: sticky; top: 80px` on a wrapper
-- **Winner highlighting:** Parse fee strings by extracting the numeric value (e.g., "₹3,500" becomes 3500). For reward value, parse "2% value" to get the percentage. Compare across selected cards and mark the best
-- **URL sync:** Call `setSearchParams({ cards: selected.map(c => c.id).join(",") })` inside a `useEffect` watching the `selected` array
-- **Popular comparisons:** Hardcode 2-3 pairs like `[["hsbc-premier", "icici-emeralde-private"], ["axis-neo", "icici-makemytrip"]]`
+- **Exit animations:** Wrap each section's `.map()` output in `<AnimatePresence>` and add `exit={{ opacity: 0, scale: 0.95 }}` and `layout` to each `motion.div` card. Use the item ID as a stable `key`
+- **Compare All link:** Build the URL with `favCards.map(c => c.id).join(",")` and link to `/compare?cards=...`
+- **Per-category empty state:** After each section's conditional render, add an else-if for when the filter matches but the array is empty
+- **Voucher card brands:** Access `v.cards` (array of card names that support this voucher) and show the first 2-3
 
 ### Implementation Order
 1. Document title, gold gradient, BackToTop
-2. Selected card slot color accents and hover lift
-3. Comparison rows grouped into sections with dividers
-4. Winner highlighting on comparable fields
-5. Sticky selected card header
-6. URL sync and share comparison button
-7. Empty state popular comparison suggestions
-8. Card selector dropdown visual improvement
+2. Category breakdown stats row
+3. Exit animations with AnimatePresence and layout
+4. Per-category empty states
+5. Cards section compare all CTA
+6. Voucher cards supported brands
+7. Guide cards description and author
+8. Banking tier cards min balance and perks
 
