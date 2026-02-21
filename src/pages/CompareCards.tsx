@@ -120,7 +120,7 @@ export default function CompareCards() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10"
+            className={`grid gap-4 mb-10 ${selected.length + emptySlots <= 2 ? 'grid-cols-2 max-w-2xl mx-auto' : selected.length + emptySlots <= 3 ? 'grid-cols-3 max-w-4xl mx-auto' : 'grid-cols-2 lg:grid-cols-4'}`}
           >
             {selected.map((card, i) => (
               <motion.div
@@ -155,7 +155,7 @@ export default function CompareCards() {
 
           {/* Comparison table */}
           {selected.length >= 2 && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className={selected.length <= 2 ? 'max-w-3xl mx-auto' : ''}>
               {/* Standard fields */}
               <div className="glass-card rounded-2xl overflow-hidden mb-6">
                 <div className="p-5 border-b border-border/30">
