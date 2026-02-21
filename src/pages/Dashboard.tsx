@@ -8,7 +8,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import { useToast } from "@/hooks/use-toast";
 import { cards as allCards } from "@/data/cards";
 
-const savedCardIds = ["hdfc-infinia", "axis-atlas", "hdfc-diners-black"];
+const savedCardIds = ["icici-emeralde-private", "hsbc-premier", "icici-rubyx"];
 const savedCards = allCards.filter((c) => savedCardIds.includes(c.id));
 
 const favoriteVouchers = [
