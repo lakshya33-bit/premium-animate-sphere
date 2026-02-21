@@ -8,24 +8,39 @@ const sections = [
     title: "Know Your Cards",
     description: "Deep-dive into every credit card's perks, fees, and hidden benefits. Make informed decisions.",
     href: "/cards",
+    badge: "6 premium cards",
+    iconBg: "bg-gold/10",
+    iconHoverBg: "group-hover:bg-gold/20",
+    iconColor: "text-gold",
+    gradientFrom: "from-gold/[0.03]",
   },
   {
     icon: Sparkles,
     title: "Perk AI",
     description: "AI-powered recommendations tailored to your spending patterns. Discover perks you didn't know existed.",
     href: "/perk-ai",
+    badge: "AI-powered",
+    iconBg: "bg-blue-500/10",
+    iconHoverBg: "group-hover:bg-blue-500/20",
+    iconColor: "text-blue-400",
+    gradientFrom: "from-blue-500/[0.03]",
   },
   {
     icon: BookOpen,
     title: "Guides Hub",
     description: "Expert guides on maximizing rewards, credit card hacks, and smart redemption strategies.",
     href: "/guides",
+    badge: "12+ guides",
+    iconBg: "bg-emerald-500/10",
+    iconHoverBg: "group-hover:bg-emerald-500/20",
+    iconColor: "text-emerald-400",
+    gradientFrom: "from-emerald-500/[0.03]",
   },
 ];
 
 export default function ExploreMore() {
   return (
-    <section className="py-24 relative">
+    <section className="py-16 relative">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -51,10 +66,15 @@ export default function ExploreMore() {
             >
               <Link
                 to={s.href}
-                className="block glass-card rounded-2xl p-8 group hover:border-gold/30 transition-all duration-300 hover:shadow-lg hover:shadow-gold/5 h-full"
+                className={`block glass-card rounded-2xl p-8 group hover:border-gold/30 transition-all duration-300 hover:shadow-lg hover:shadow-gold/5 h-full bg-gradient-to-br ${s.gradientFrom} to-transparent`}
               >
-                <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mb-5 group-hover:bg-gold/20 transition-colors">
-                  <s.icon className="w-5 h-5 text-gold" />
+                {/* Badge */}
+                <span className="inline-block text-[10px] font-semibold tracking-wide uppercase px-2.5 py-1 rounded-full bg-gold/10 text-gold mb-4">
+                  {s.badge}
+                </span>
+
+                <div className={`w-12 h-12 rounded-xl ${s.iconBg} flex items-center justify-center mb-5 ${s.iconHoverBg} transition-colors`}>
+                  <s.icon className={`w-5 h-5 ${s.iconColor}`} />
                 </div>
                 <h3 className="font-serif text-xl font-semibold mb-3">{s.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed mb-5">{s.description}</p>
