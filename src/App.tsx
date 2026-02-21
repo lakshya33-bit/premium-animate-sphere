@@ -13,6 +13,7 @@ import KnowYourCards from "./pages/KnowYourCards";
 import CardDetail from "./pages/CardDetail";
 import PerkAI from "./pages/PerkAI";
 import GuidesHub from "./pages/GuidesHub";
+import Banking from "./pages/Banking";
 import GuideDetail from "./pages/GuideDetail";
 import Dashboard from "./pages/Dashboard";
 import About from "./pages/About";
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/perk-ai" element={<PerkAI />} />
             <Route path="/guides" element={<GuidesHub />} />
             <Route path="/guides/:slug" element={<GuideDetail />} />
+            <Route path="/banking" element={<Banking />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/about" element={<About />} />
             <Route path="/privacy" element={<Privacy />} />
