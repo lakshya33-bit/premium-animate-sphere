@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, ArrowRight, Eye, ExternalLink, X, Clock, CreditCard, Tag } from "lucide-react";
+import { Search, ArrowRight, Eye, ExternalLink, X, Clock, CreditCard, Tag, Heart } from "lucide-react";
 import { Gift } from "lucide-react";
+import { useFavorites } from "@/hooks/use-favorites";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import PageLayout from "@/components/PageLayout";
@@ -56,7 +57,7 @@ export default function Vouchers() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [quickViewVoucher, setQuickViewVoucher] = useState<Voucher | null>(null);
-
+  const { toggle: toggleFav, isFav } = useFavorites("voucher");
   const filtered = vouchers.filter((v) => {
     const matchSearch = v.name.toLowerCase().includes(search.toLowerCase()) || v.category.toLowerCase().includes(search.toLowerCase());
     const matchCategory = activeCategory === "All" || v.category === activeCategory;
@@ -90,7 +91,13 @@ export default function Vouchers() {
             {filtered.map((v, i) => {
               const Icon = iconMap[v.category] || Gift;
               return (
-                <motion.div key={v.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.4 }} className="tilt-card glass-card rounded-2xl p-6 group">
+                <motion.div key={v.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.4 }} className="tilt-card glass-card rounded-2xl p-6 group relative">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); toggleFav(v.id); }}
+                    className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-secondary/50 transition-colors z-10"
+                  >
+                    <Heart className={`w-4 h-4 transition-colors ${isFav(v.id) ? "text-gold fill-gold" : "text-muted-foreground hover:text-gold"}`} />
+                  </button>
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${v.color}15` }}>
                       <Icon className="w-5 h-5" style={{ color: v.color }} />

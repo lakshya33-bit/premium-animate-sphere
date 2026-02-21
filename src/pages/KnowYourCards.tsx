@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { CreditCard, Star, TrendingUp, TrendingDown, IndianRupee, PieChart, ArrowUpDown, Receipt, ShoppingBag, UtensilsCrossed, Car, Fuel, Plane, Smartphone, Eye, ExternalLink, Check, X } from "lucide-react";
+import { CreditCard, Star, TrendingUp, TrendingDown, IndianRupee, PieChart, ArrowUpDown, Receipt, ShoppingBag, UtensilsCrossed, Car, Fuel, Plane, Smartphone, Eye, ExternalLink, Check, X, Heart } from "lucide-react";
+import { useFavorites } from "@/hooks/use-favorites";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
@@ -85,6 +86,7 @@ function CardQuickView({ card, open, onClose }: { card: CardType | null; open: b
 
 export default function KnowYourCards() {
   const [quickViewCard, setQuickViewCard] = useState<CardType | null>(null);
+  const { toggle: toggleFav, isFav } = useFavorites("card");
 
   return (
     <PageLayout>
@@ -121,13 +123,19 @@ export default function KnowYourCards() {
                             <div className="absolute top-4 right-5 text-white/40 text-[10px] font-medium tracking-wider uppercase">{card.network}</div>
                           </div>
                         )}
-                        {/* Shine overlay */}
                         <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none" />
                       </div>
                       {/* Rating badge */}
                       <div className="absolute top-7 right-7 flex items-center gap-1 bg-background/70 backdrop-blur-md px-2 py-1 rounded-lg shadow-lg">
                         <Star className="w-3 h-3 text-gold fill-gold" /><span className="text-xs font-medium">{card.rating}</span>
                       </div>
+                      {/* Fav button */}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); toggleFav(card.id); }}
+                        className="absolute top-7 left-7 p-1.5 rounded-lg bg-background/70 backdrop-blur-md shadow-lg hover:bg-background/90 transition-colors z-10"
+                      >
+                        <Heart className={`w-3.5 h-3.5 transition-colors ${isFav(card.id) ? "text-gold fill-gold" : "text-muted-foreground hover:text-gold"}`} />
+                      </button>
                     </div>
                     {/* Card info */}
                     <div className="px-5 pb-5">
