@@ -41,8 +41,15 @@ function CardQuickView({ card, open, onClose }: { card: CardType | null; open: b
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="glass-card border-border/50 sm:max-w-lg">
         <DialogHeader>
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-8 rounded-lg" style={{ background: `linear-gradient(135deg, ${card.color}, ${card.color}88)` }} />
+          <div className="flex items-center gap-4">
+            {/* Card image thumbnail */}
+            <div className="w-20 h-[50px] rounded-lg overflow-hidden shadow-lg shadow-black/30 flex-shrink-0">
+              {card.image ? (
+                <img src={card.image} alt={card.name} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full" style={{ background: `linear-gradient(135deg, ${card.color}, ${card.color}88)` }} />
+              )}
+            </div>
             <div>
               <DialogTitle className="font-serif text-xl">{card.name}</DialogTitle>
               <p className="text-xs text-muted-foreground">{card.issuer} · {card.network}</p>
@@ -99,23 +106,37 @@ export default function KnowYourCards() {
               <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
                 {cards.map((card, i) => (
                   <motion.div key={card.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08, duration: 0.4 }} className="tilt-card glass-card rounded-2xl overflow-hidden">
-                    <div className="h-24 relative" style={{ background: `linear-gradient(135deg, ${card.color}, ${card.color}88)` }}>
-                      <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent" />
-                      <div className="absolute bottom-3 left-5 right-5 flex items-end justify-between">
-                        <div>
-                          <h3 className="font-serif font-bold text-lg text-foreground">{card.name}</h3>
-                          <p className="text-xs text-foreground/70">{card.network}</p>
-                        </div>
-                        <div className="flex items-center gap-1 bg-background/30 backdrop-blur px-2 py-1 rounded-lg">
-                          <Star className="w-3 h-3 text-gold fill-gold" /><span className="text-xs font-medium">{card.rating}</span>
-                        </div>
+                    {/* Card image area */}
+                    <div className="relative p-5 pb-3">
+                      <div className="relative aspect-[1.586/1] rounded-xl overflow-hidden shadow-xl shadow-black/40 group/card">
+                        {card.image ? (
+                          <img src={card.image} alt={card.name} className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105" />
+                        ) : (
+                          <div className="w-full h-full" style={{ background: `linear-gradient(135deg, ${card.color}, ${card.color}66, ${card.color}33)` }}>
+                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.15),transparent_60%)]" />
+                            <div className="absolute bottom-4 left-5">
+                              <p className="text-xs text-white/50 font-medium tracking-widest uppercase">{card.issuer}</p>
+                              <p className="text-sm text-white/80 font-semibold mt-0.5">{card.name}</p>
+                            </div>
+                            <div className="absolute top-4 right-5 text-white/40 text-[10px] font-medium tracking-wider uppercase">{card.network}</div>
+                          </div>
+                        )}
+                        {/* Shine overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                      </div>
+                      {/* Rating badge */}
+                      <div className="absolute top-7 right-7 flex items-center gap-1 bg-background/70 backdrop-blur-md px-2 py-1 rounded-lg shadow-lg">
+                        <Star className="w-3 h-3 text-gold fill-gold" /><span className="text-xs font-medium">{card.rating}</span>
                       </div>
                     </div>
-                    <div className="p-5">
+                    {/* Card info */}
+                    <div className="px-5 pb-5">
+                      <h3 className="font-serif font-bold text-lg">{card.name}</h3>
+                      <p className="text-xs text-muted-foreground mb-3">{card.issuer} · {card.network} · {card.type}</p>
                       <div className="grid grid-cols-3 gap-3 mb-4">
-                        <div className="text-center"><p className="text-[10px] text-muted-foreground uppercase">Fee</p><p className="text-sm font-semibold">{card.fee}</p></div>
-                        <div className="text-center"><p className="text-[10px] text-muted-foreground uppercase">Rewards</p><p className="text-sm font-semibold text-gold">{card.rewards}</p></div>
-                        <div className="text-center"><p className="text-[10px] text-muted-foreground uppercase">Lounge</p><p className="text-sm font-semibold">{card.lounge}</p></div>
+                        <div className="text-center bg-secondary/30 rounded-xl py-2"><p className="text-[10px] text-muted-foreground uppercase">Fee</p><p className="text-sm font-semibold">{card.fee}</p></div>
+                        <div className="text-center bg-secondary/30 rounded-xl py-2"><p className="text-[10px] text-muted-foreground uppercase">Rewards</p><p className="text-sm font-semibold text-gold">{card.rewards}</p></div>
+                        <div className="text-center bg-secondary/30 rounded-xl py-2"><p className="text-[10px] text-muted-foreground uppercase">Lounge</p><p className="text-sm font-semibold">{card.lounge}</p></div>
                       </div>
                       <div className="flex gap-2">
                         <button onClick={() => setQuickViewCard(card)} className="flex-1 text-xs py-2 rounded-lg gold-outline-btn flex items-center justify-center gap-1"><Eye className="w-3 h-3" /> Quick View</button>

@@ -6,12 +6,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageLayout from "@/components/PageLayout";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { useToast } from "@/hooks/use-toast";
+import { cards as allCards } from "@/data/cards";
 
-const savedCards = [
-  { name: "HDFC Infinia", network: "Visa", color: "#003D8F", id: "hdfc-infinia" },
-  { name: "Axis Atlas", network: "Visa", color: "#97144D", id: "axis-atlas" },
-  { name: "HDFC Diners Black", network: "Diners", color: "#1A1A2E", id: "hdfc-diners-black" },
-];
+const savedCardIds = ["hdfc-infinia", "axis-atlas", "hdfc-diners-black"];
+const savedCards = allCards.filter((c) => savedCardIds.includes(c.id));
 
 const favoriteVouchers = [
   { name: "Flipkart", discount: "Up to 7%", color: "#F8C534", id: "flipkart" },
@@ -149,10 +147,16 @@ export default function Dashboard() {
                       <motion.div key={card.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
                         <Link to={`/cards/${card.id}`} className="glass-card rounded-xl p-4 flex items-center justify-between group hover:border-gold/30 transition-all block">
                           <div className="flex items-center gap-4">
-                            <div className="w-12 h-8 rounded-lg" style={{ background: `linear-gradient(135deg, ${card.color}, ${card.color}88)` }} />
+                            <div className="w-16 h-10 rounded-lg overflow-hidden shadow-lg shadow-black/30 flex-shrink-0">
+                              {card.image ? (
+                                <img src={card.image} alt={card.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full" style={{ background: `linear-gradient(135deg, ${card.color}, ${card.color}88)` }} />
+                              )}
+                            </div>
                             <div>
                               <h3 className="font-semibold text-sm group-hover:text-gold transition-colors">{card.name}</h3>
-                              <p className="text-xs text-muted-foreground">{card.network}</p>
+                              <p className="text-xs text-muted-foreground">{card.network} · {card.issuer}</p>
                             </div>
                           </div>
                           <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-gold transition-colors" />
