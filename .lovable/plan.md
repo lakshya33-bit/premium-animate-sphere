@@ -1,111 +1,135 @@
 
 
-# Banking Page -- Visual and UI Improvements
+# Perk AI Page -- Visual and UI Improvements
 
-A focused plan to enhance the Banking page with better visual progression, richer tier comparisons, and missing page-level polish.
-
----
-
-## 1. Hero Area -- Tighten Spacing and Add Context
-
-**Current state:** The hero section has a large animated Landmark icon (96px), title, subtitle, and lots of vertical spacing. The icon + pulse animation is visually heavy, and the gap between the hero and the section toggle is too large (~64px). The page lacks a document title and BackToTop component.
-
-**Improvements:**
-- Reduce the hero icon size from 96px to 72px and tighten the spacing below it (mb-8 to mb-6)
-- Reduce spacing between hero and section toggle (mb-16 to mb-10)
-- Reduce spacing between section toggle and stats row (mb-12 to mb-8)
-- Add a subtle gold gradient accent behind the entire header area (matching Homepage and Vouchers pattern)
-- Set document title to "Banking | CardPerks"
-- Add BackToTop component
+A focused plan to elevate the Perk AI chat interface with better message rendering, smarter layout behavior, and richer interactive features.
 
 ---
 
-## 2. Bank Filter Pills -- Visual Weight and Active Indicator
+## 1. Markdown Rendering for AI Responses
 
-**Current state:** Bank filter pills are plain glass-card buttons with gold background on active. They work but all look the same weight, and there's no indication of how many tiers each bank has.
+**Current state:** AI responses contain markdown formatting like `**bold**`, `| table |`, and bullet points, but they are rendered as raw plain text. Bold markers show as literal asterisks, and tables display as pipe-separated text.
 
 **Improvements:**
-- Add a tier count badge next to each bank name (e.g., "HDFC Bank (4)", "SBI (2)")
-- Add a small colored dot or accent using the bank's brand color next to the name for visual differentiation
-- Reduce spacing between filter pills and tier cards (mb-14 to mb-8)
+- Install `react-markdown` and render all AI messages through it with proper prose styling
+- Bold text, bullet lists, and comparison tables will display correctly
+- Add a subtle `prose prose-sm` wrapper with gold-accented links and proper table styling
+- Keep the TypingText component working by rendering the progressively-typed text through markdown once complete
 
 ---
 
-## 3. Tier Cards -- Visual Progression and Hierarchy
+## 2. Collapsible Hero on Active Chat
 
-**Current state:** All four HDFC tiers look nearly identical in weight. The tier color is subtle (only in the icon and header gradient). There's no visual signal that Private Banking is "higher" than Classic. The cards are dense with eligibility, cards, benefits, RM badge, and key takeaways all stacked.
+**Current state:** The hero section (icon + title + subtitle) takes up about 220px of vertical space and stays visible even when the user is deep in a conversation. This wastes valuable chat viewport.
 
 **Improvements:**
-- Add a tier progression indicator -- a subtle top border bar using the tier's color (2px solid line at the very top of each card)
-- Add a tier rank badge (e.g., "Tier 1", "Tier 2", etc.) as a small pill in the top-right of the header area, showing the progression
-- Add an "Invite Only" badge on Private Banking tiers (when eligibility text contains "invitation only")
-- Use different Diamond/Crown/Star icons per tier level instead of the same Diamond icon for all tiers -- Classic gets a simple icon, Private Banking gets a Crown
-- Add a subtle hover lift effect (translateY -4px) for better interactivity feedback
+- Auto-collapse the hero after the first user message is sent -- shrink to a compact inline bar showing just "Perk AI" with the sparkle icon (40px height)
+- Add a smooth framer-motion height transition for the collapse
+- Keep the full hero visible only on initial load (before any user interaction)
 
 ---
 
-## 4. Eligibility Section -- Readability Improvement
+## 3. Quick Actions -- Context-Aware Visibility
 
-**Current state:** The eligibility text is a dense paragraph with multiple conditions separated by "OR". It's hard to quickly scan what qualifies you.
+**Current state:** The three quick action chips ("Top Rewards Cards", "Best Cashback Deals", "Card Strategy Help") remain visible even after the user starts chatting. They feel redundant once suggestions are showing inline with messages.
 
 **Improvements:**
-- Parse the eligibility text and display each "OR" condition as a separate bullet/line item with a small "OR" divider between them
-- Highlight key monetary values (amounts like "Rs 1 Lakh", "Rs 10 Crores") in gold text for quick scanning
+- Hide quick actions after the first user message is sent
+- Add a fade-out animation when they disappear
+- This reclaims about 50px of vertical space for the chat
 
 ---
 
-## 5. Cross-Bank Comparison Feature
+## 4. Chat Area -- Full-Height Layout
 
-**Current state:** You can only view one bank at a time. There's no way to compare similar tiers across banks (e.g., HDFC Imperia vs ICICI Wealth vs Axis Burgundy).
+**Current state:** The chat area has `max-h-[55vh]` and `min-h-[400px]`, which creates a small scrollable box. The input bar uses `sticky bottom-6` but the parent container doesn't support proper sticky behavior within a scrolling page. The footer is always visible below, eating into space.
 
 **Improvements:**
-- Add a "Compare Tiers" section below the current bank tiers showing a quick comparison table of all banks' equivalent tiers side-by-side
-- The table would show: Bank Name, Tier Name, Min. AMB, RM status, Lounge Access (extracted from benefits), and number of benefits
-- Style it as a glass-card table with bank brand-color accents
+- Switch to a full-viewport chat layout: hero at top, messages fill remaining height, input pinned at bottom
+- Use `flex flex-col h-[calc(100vh-80px)]` on the chat container (80px for navbar)
+- Remove the min/max height constraints and let the message area flex-grow with `overflow-y-auto`
+- Make the input truly sticky at the bottom of the chat container, not the page
 
 ---
 
-## 6. Family Banking Tab -- Content Richness
+## 5. New Chat Button and Conversation Controls
 
-**Current state:** The Family Banking section is a placeholder with three generic feature cards and a "Ask Perk AI" link. It feels empty compared to the Wealth Banking tab.
+**Current state:** There's no way to start a new conversation or clear the chat. Users have to refresh the page.
 
 **Improvements:**
-- Add a "How Family Banking Works" step flow (similar to homepage How It Works) with 3 steps: 1. Pool balances, 2. Qualify for higher tier, 3. Share benefits
-- Add specific bank examples: "HDFC Family Banking requires combined AMB of Rs 30L for Imperia benefits"
-- Add a comparison of which banks offer family banking programs with a small card for each
+- Add a "New Chat" button in the compact header bar (visible once hero collapses) with a subtle icon
+- Clicking it resets messages to initialMessages and re-expands the hero
+- Add a subtle message count indicator (e.g., "3 messages") in the header bar
 
 ---
 
-## 7. Section Toggle -- Active State Animation
+## 6. Suggestion Chips -- Only on Latest Message
 
-**Current state:** The Wealth/Family toggle buttons switch content but the transition feels abrupt. The active state is just a gold background.
+**Current state:** Every AI message shows its suggestions, even older ones. As the conversation grows, this creates visual clutter with stale suggestions everywhere.
 
 **Improvements:**
-- Add a subtle sliding background indicator (like a tab underline that slides between the two options)
-- Add content transition animation when switching between tabs (fade + slide)
+- Only show suggestion chips on the most recent AI message
+- Hide suggestions from older messages to keep the chat clean
+- Add a subtle fade-in delay so suggestions appear after the typing animation finishes
+
+---
+
+## 7. Message Timestamps and Copy
+
+**Current state:** Messages have no timestamps and no way to copy the AI response.
+
+**Improvements:**
+- Add a subtle timestamp below each message (e.g., "just now", "2 min ago") in tiny muted text
+- Add a small copy button on hover over AI messages that copies the response text to clipboard
+- Show a brief "Copied!" toast feedback via sonner
+
+---
+
+## 8. Document Title and Page Polish
+
+**Current state:** No document title is set. No gold gradient accent behind the header area (other pages have this).
+
+**Improvements:**
+- Set document title to "Perk AI | CardPerks"
+- Add the subtle gold radial gradient accent behind the hero area (matching Banking, Vouchers pages)
+- Add a subtle animated background pattern or particles effect behind the hero (reuse FloatingParticles at low opacity)
+
+---
+
+## 9. Enhanced Quick Action Categories
+
+**Current state:** Only 3 quick action chips. They could cover more common use cases to make the landing state feel richer.
+
+**Improvements:**
+- Expand to 5-6 quick actions covering more scenarios: "Top Rewards Cards", "Best Cashback Deals", "Card Strategy Help", "Travel Card Finder", "Compare Two Cards", "Fee Waiver Tips"
+- Arrange in a 2-row grid on mobile instead of flex-wrap for cleaner layout
+- Add a subtle category icon color tint per chip
 
 ---
 
 ## Technical Details
 
 ### Files to Modify
-- `src/pages/Banking.tsx` -- All improvements (hero spacing, bank pill counts, tier card progression, eligibility parsing, cross-bank comparison, family banking content, document title, BackToTop)
+- `src/pages/PerkAI.tsx` -- All improvements (markdown rendering, collapsible hero, full-height layout, new chat button, suggestion visibility, timestamps, copy button, document title, enhanced quick actions)
 
-### No New Dependencies Required
-All changes use existing framer-motion, lucide-react, and Tailwind utilities.
+### New Dependency Required
+- `react-markdown` -- for proper markdown rendering in AI responses (bold, tables, bullets, links)
 
-### Data Considerations
-- Tier icons can be mapped by index: `[Landmark, Diamond, Crown, Award]` for ascending tiers
-- "Invite Only" detection: check if `tier.eligibility.toLowerCase().includes("invitation")`
-- Eligibility parsing: split on " OR " to create bullet items
-- Cross-bank comparison data can be derived from the existing `banks` array
+### Key Implementation Notes
+- TypingText + markdown: During typing animation, render raw text. Once typing is done, switch the message to render through ReactMarkdown
+- Collapsible hero: Use a `hasStarted` state that flips to true on first `sendMessage` call. Wrap hero in a `motion.div` with `animate={{ height }}` 
+- Full-height layout: Replace `<section className="py-8 sm:py-12">` with a flex column container that fills the viewport minus the navbar height
+- Suggestion visibility: Change `{msg.suggestions && ...}` to `{msg.suggestions && i === messages.length - 1 && ...}` to only show on the latest AI message
+- Copy button: Use `navigator.clipboard.writeText()` with sonner toast for feedback
+- Timestamps: Store `Date.now()` with each message and format using `date-fns`'s `formatDistanceToNow`
 
 ### Implementation Order
-1. Hero spacing tightening and document title + BackToTop
-2. Bank filter pills with tier counts and brand-color dots
-3. Tier card visual progression (top border, rank badge, varied icons, invite-only badge)
-4. Eligibility text parsing into scannable bullet points
-5. Cross-bank comparison table
-6. Family Banking tab content enrichment
-7. Section toggle animation polish
+1. Document title and gold gradient accent
+2. Markdown rendering (install react-markdown, wrap AI messages)
+3. Full-height chat layout restructure
+4. Collapsible hero with animation
+5. Quick actions context-aware visibility and expansion
+6. Suggestion chips only on latest message
+7. New Chat button and message count
+8. Timestamps and copy button
 
