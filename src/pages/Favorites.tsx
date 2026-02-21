@@ -1,21 +1,28 @@
 import { motion } from "framer-motion";
-import { Heart, CreditCard, Gift, BookOpen, ChevronRight, Clock, Star } from "lucide-react";
+import { Heart, CreditCard, Gift, BookOpen, ChevronRight, Clock, Star, Landmark, Check, GitCompare } from "lucide-react";
 import { Link } from "react-router-dom";
 import PageLayout from "@/components/PageLayout";
 import { useFavorites } from "@/hooks/use-favorites";
 import { cards } from "@/data/cards";
 import { vouchers, iconMap } from "@/data/vouchers";
 import { guides } from "@/data/guides";
+import { banks } from "@/data/banking";
 
 export default function Favorites() {
   const { isFav: isCardFav, toggle: toggleCard } = useFavorites("card");
   const { isFav: isVoucherFav, toggle: toggleVoucher } = useFavorites("voucher");
   const { isFav: isGuideFav, toggle: toggleGuide } = useFavorites("guide");
+  const { isFav: isBankingFav, toggle: toggleBanking } = useFavorites("banking");
 
   const favCards = cards.filter((c) => isCardFav(c.id));
   const favVouchers = vouchers.filter((v) => isVoucherFav(v.id));
   const favGuides = guides.filter((g) => isGuideFav(g.slug));
-  const totalCount = favCards.length + favVouchers.length + favGuides.length;
+  const favBankingTiers = banks.flatMap((bank) =>
+    bank.tiers
+      .filter((tier) => isBankingFav(`banking-${tier.name.toLowerCase().replace(/\s+/g, "-")}`))
+      .map((tier) => ({ ...tier, bankName: bank.name, bankId: bank.id }))
+  );
+  const totalCount = favCards.length + favVouchers.length + favGuides.length + favBankingTiers.length;
 
   return (
     <PageLayout>
@@ -145,6 +152,47 @@ export default function Favorites() {
                     </Link>
                   </motion.div>
                 ))}
+              </div>
+            </motion.div>
+          )}
+          {/* Favorite Banking Tiers */}
+          {favBankingTiers.length > 0 && (
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mb-10">
+              <div className="flex items-center gap-2 mb-5">
+                <Landmark className="w-5 h-5 text-gold" />
+                <h2 className="font-serif text-xl font-bold">Banking Tiers</h2>
+                <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-gold/10 text-gold font-medium">{favBankingTiers.length}</span>
+              </div>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {favBankingTiers.map((tier, i) => {
+                  const tierId = `banking-${tier.name.toLowerCase().replace(/\s+/g, "-")}`;
+                  return (
+                    <motion.div key={tierId} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }} className="glass-card rounded-2xl overflow-hidden relative">
+                      <div className="h-1.5" style={{ background: `linear-gradient(90deg, ${tier.color}, ${tier.color}66)` }} />
+                      <div className="p-5">
+                        <button onClick={() => toggleBanking(tierId)} className="absolute top-6 right-4 p-1.5 rounded-lg hover:bg-secondary/50 transition-colors z-10">
+                          <Heart className="w-4 h-4 text-gold fill-gold" />
+                        </button>
+                        <h3 className="font-serif text-sm font-bold mb-1" style={{ color: tier.color }}>{tier.name}</h3>
+                        <p className="text-[10px] text-muted-foreground mb-2">{tier.bankName}</p>
+                        {tier.hasRM && (
+                          <div className="flex items-center gap-1.5 mb-2">
+                            <Check className="w-3 h-3 text-gold" />
+                            <span className="text-[10px] text-gold">Dedicated RM</span>
+                          </div>
+                        )}
+                        <div className="flex flex-wrap gap-1 mb-3">
+                          {tier.eligibleCards.map((c) => (
+                            <span key={c} className="text-[10px] px-2 py-0.5 rounded-lg bg-secondary/60">{c}</span>
+                          ))}
+                        </div>
+                        <Link to="/banking" className="flex items-center gap-1 text-xs text-gold hover:text-gold-light transition-colors">
+                          View Details <ChevronRight className="w-3 h-3" />
+                        </Link>
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </div>
             </motion.div>
           )}

@@ -154,6 +154,7 @@ export default function KnowYourCards() {
                       <div className="flex gap-2">
                         <button onClick={() => setQuickViewCard(card)} className="flex-1 text-xs py-2 rounded-lg gold-outline-btn flex items-center justify-center gap-1"><Eye className="w-3 h-3" /> Quick View</button>
                         <Link to={`/cards/${card.id}`} className="flex-1 text-xs py-2 rounded-lg gold-btn flex items-center justify-center gap-1"><ExternalLink className="w-3 h-3" /> Full View</Link>
+                        <Link to="/compare" className="text-xs py-2 px-3 rounded-lg glass-card hover:border-gold/30 transition-all flex items-center justify-center gap-1 text-muted-foreground hover:text-gold"><GitCompare className="w-3 h-3" /></Link>
                       </div>
                     </div>
                   </motion.div>

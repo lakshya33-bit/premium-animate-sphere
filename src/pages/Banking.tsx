@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 function TierCard({ tier, bankColor, index }: { tier: BankingTier; bankColor: string; index: number }) {
   const [expanded, setExpanded] = useState(false);
-  const { toggle, isFav } = useFavorites("card");
+  const { toggle, isFav } = useFavorites("banking");
   const tierId = `banking-${tier.name.toLowerCase().replace(/\s+/g, "-")}`;
   const visibleBenefits = expanded ? tier.benefits : tier.benefits.slice(0, 5);
   const hasMore = tier.benefits.length > 5;
