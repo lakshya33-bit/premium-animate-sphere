@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Heart, Bell, Moon, Sun, Menu, X, ChevronDown } from "lucide-react";
+import { Heart, Bell, Menu, X, ChevronDown, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/cardperks-logo.png";
 
@@ -95,6 +95,9 @@ export default function Navbar() {
             <button className="p-2 text-muted-foreground hover:text-gold transition-colors rounded-lg hover:bg-secondary/50">
               <Bell className="w-4 h-4" />
             </button>
+            <Link to="/dashboard" className="p-2 text-muted-foreground hover:text-gold transition-colors rounded-lg hover:bg-secondary/50">
+              <User className="w-4 h-4" />
+            </Link>
             <Link
               to="/login"
               className="ml-2 px-5 py-2 text-sm font-medium gold-outline-btn rounded-lg"
