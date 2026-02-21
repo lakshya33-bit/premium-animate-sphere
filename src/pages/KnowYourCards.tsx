@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { CreditCard, Star, TrendingUp, TrendingDown, IndianRupee, PieChart, ArrowUpDown, Receipt, ShoppingBag, UtensilsCrossed, Car, Fuel, Plane, Smartphone, Eye, ExternalLink, Check, X, Heart } from "lucide-react";
+import { CreditCard, Star, TrendingUp, TrendingDown, IndianRupee, PieChart, ArrowUpDown, Receipt, ShoppingBag, UtensilsCrossed, Car, Fuel, Plane, Smartphone, Eye, ExternalLink, Check, X, Heart, ArrowRight, GitCompare } from "lucide-react";
 import { useFavorites } from "@/hooks/use-favorites";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -95,10 +95,15 @@ export default function KnowYourCards() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <p className="text-sm font-medium tracking-widest uppercase text-gold mb-3">Know Your Cards</p>
             <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">Cards & <span className="gold-gradient">Expenses</span></h1>
-            <p className="text-muted-foreground max-w-xl mb-10">Deep-dive into every credit card's perks, compare benefits, and track your spending across all cards.</p>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              <p className="text-muted-foreground max-w-xl">Deep-dive into every credit card's perks, compare benefits, and track your spending across all cards.</p>
+              <Link to="/compare" className="gold-btn px-5 py-2.5 rounded-xl text-sm flex items-center gap-2 flex-shrink-0 w-fit">
+                <GitCompare className="w-4 h-4" /> Compare Cards
+              </Link>
+            </div>
           </motion.div>
 
-          <Tabs defaultValue="cards" className="w-full">
+          <Tabs defaultValue="cards" className="w-full mt-10">
             <TabsList className="bg-secondary/50 border border-border/50 mb-8">
               <TabsTrigger value="cards" className="data-[state=active]:bg-gold data-[state=active]:text-background"><CreditCard className="w-4 h-4 mr-2" /> Cards</TabsTrigger>
               <TabsTrigger value="expenses" className="data-[state=active]:bg-gold data-[state=active]:text-background"><PieChart className="w-4 h-4 mr-2" /> Expenses</TabsTrigger>
