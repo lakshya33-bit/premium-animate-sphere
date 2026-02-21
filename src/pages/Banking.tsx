@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import PageLayout from "@/components/PageLayout";
 import { banks, type BankData, type BankingTier } from "@/data/banking";
 import { useFavorites } from "@/hooks/use-favorites";
+import FavoriteButton from "@/components/FavoriteButton";
 
 function TierCard({ tier, bankColor, bankName, index }: { tier: BankingTier; bankColor: string; bankName: string; index: number }) {
   const [expanded, setExpanded] = useState(false);
@@ -35,12 +36,12 @@ function TierCard({ tier, bankColor, bankName, index }: { tier: BankingTier; ban
               <h3 className="font-serif text-xl font-bold tracking-tight" style={{ color: tier.color }}>{tier.name}</h3>
               <p className="text-[11px] text-muted-foreground mt-1 font-medium">{bankName}</p>
             </div>
-            <button
-              onClick={() => toggle(tierId)}
-              className="p-2.5 rounded-xl hover:bg-secondary/50 transition-all duration-300"
-            >
-              <Heart className={`w-4 h-4 transition-all duration-300 ${isFav(tierId) ? "text-gold fill-gold scale-110" : "text-muted-foreground hover:text-gold"}`} />
-            </button>
+            <FavoriteButton
+              isFav={isFav(tierId)}
+              onToggle={() => toggle(tierId)}
+              className="hover:bg-secondary/50"
+              size="md"
+            />
           </div>
         </div>
 

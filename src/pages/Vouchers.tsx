@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, ArrowRight, Eye, ExternalLink, X, Clock, CreditCard, Tag, Heart, Share2, Globe, ArrowUpRight, Gift, Sparkles, TrendingUp, Star } from "lucide-react";
 import { useFavorites } from "@/hooks/use-favorites";
+import FavoriteButton from "@/components/FavoriteButton";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import PageLayout from "@/components/PageLayout";
@@ -205,12 +206,13 @@ export default function Vouchers() {
               const Icon = iconMap[v.category] || Gift;
               return (
                 <motion.div key={v.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.4 }} className="tilt-card glass-card rounded-2xl p-6 group relative">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); toggleFav(v.id); }}
-                    className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-secondary/50 transition-colors z-10"
-                  >
-                    <Heart className={`w-4 h-4 transition-colors ${isFav(v.id) ? "text-gold fill-gold" : "text-muted-foreground hover:text-gold"}`} />
-                  </button>
+                  <div className="absolute top-4 right-4 z-10">
+                    <FavoriteButton
+                      isFav={isFav(v.id)}
+                      onToggle={() => toggleFav(v.id)}
+                      className="hover:bg-secondary/50"
+                    />
+                  </div>
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${v.color}15` }}>
                       <Icon className="w-5 h-5" style={{ color: v.color }} />

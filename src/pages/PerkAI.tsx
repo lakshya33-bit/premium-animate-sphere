@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Sparkles, Send, Bot, User, CreditCard, TrendingUp, Gift } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Sparkles, Send, Bot, User, Zap, MessageSquare, TrendingUp, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import PageLayout from "@/components/PageLayout";
 
@@ -33,10 +33,23 @@ const aiResponses: Record<string, { content: string; suggestions: string[] }> = 
   },
 };
 
+const quickActions = [
+  { icon: TrendingUp, label: "Top Rewards Cards" },
+  { icon: Zap, label: "Best Cashback Deals" },
+  { icon: MessageSquare, label: "Card Strategy Help" },
+];
+
 export default function PerkAI() {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages, isTyping]);
 
   const sendMessage = (text: string) => {
     if (!text.trim()) return;
@@ -59,83 +72,157 @@ export default function PerkAI() {
 
   return (
     <PageLayout>
-      <section className="py-12">
+      <section className="py-8 sm:py-12">
         <div className="container mx-auto px-4 max-w-3xl">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
-            <div className="w-16 h-16 rounded-2xl bg-gold/10 flex items-center justify-center mx-auto mb-5">
-              <Sparkles className="w-7 h-7 text-gold" />
-            </div>
-            <h1 className="font-serif text-3xl sm:text-4xl font-bold mb-3">
+          {/* Hero */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
+            <motion.div
+              initial={{ scale: 0.7, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
+              className="relative w-20 h-20 mx-auto mb-6"
+            >
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-gold/25 to-gold/5 shadow-2xl shadow-gold/20" />
+              <div className="absolute inset-0 rounded-2xl flex items-center justify-center">
+                <Sparkles className="w-8 h-8 text-gold" />
+              </div>
+              <motion.div
+                animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.6, 0.3] }}
+                transition={{ repeat: Infinity, duration: 3 }}
+                className="absolute -inset-2 rounded-2xl border border-gold/20"
+              />
+            </motion.div>
+            <h1 className="font-serif text-3xl sm:text-4xl font-bold mb-2">
               Perk <span className="gold-gradient">AI</span>
             </h1>
             <p className="text-muted-foreground text-sm">Your AI-powered credit card rewards advisor</p>
           </motion.div>
 
-          {/* Chat messages */}
-          <div className="space-y-6 mb-6 min-h-[400px]">
-            {messages.map((msg, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+          {/* Quick action chips */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="flex justify-center gap-2 mb-8 flex-wrap"
+          >
+            {quickActions.map((a) => (
+              <button
+                key={a.label}
+                onClick={() => sendMessage(a.label)}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-full glass-card text-xs font-medium text-muted-foreground hover:text-gold hover:border-gold/30 transition-all duration-300 hover:shadow-md hover:shadow-gold/5"
               >
-                {msg.role === "ai" && (
-                  <div className="w-8 h-8 rounded-lg bg-gold/10 flex items-center justify-center flex-shrink-0 mt-1">
+                <a.icon className="w-3 h-3" />
+                {a.label}
+              </button>
+            ))}
+          </motion.div>
+
+          {/* Chat area */}
+          <div ref={scrollRef} className="space-y-5 mb-6 min-h-[400px] max-h-[55vh] overflow-y-auto pr-1 scroll-smooth">
+            <AnimatePresence initial={false}>
+              {messages.map((msg, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 12, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ duration: 0.35, ease: "easeOut" }}
+                  className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  {msg.role === "ai" && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.1, type: "spring" }}
+                      className="w-9 h-9 rounded-xl bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center flex-shrink-0 mt-1 shadow-lg shadow-gold/10"
+                    >
+                      <Bot className="w-4 h-4 text-gold" />
+                    </motion.div>
+                  )}
+                  <div className={`max-w-[85%] ${msg.role === "user" ? "order-first" : ""}`}>
+                    <div
+                      className={`rounded-2xl px-5 py-4 text-sm leading-relaxed ${
+                        msg.role === "user"
+                          ? "bg-gradient-to-br from-gold to-gold-dark text-background ml-auto rounded-br-md shadow-lg shadow-gold/20"
+                          : "glass-card rounded-bl-md border border-border/30"
+                      }`}
+                    >
+                      <div className="whitespace-pre-line">{msg.content}</div>
+                    </div>
+                    {msg.suggestions && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="flex flex-wrap gap-2 mt-3"
+                      >
+                        {msg.suggestions.map((s) => (
+                          <button
+                            key={s}
+                            onClick={() => sendMessage(s)}
+                            className="text-xs px-3.5 py-2 rounded-xl gold-outline-btn hover:scale-[1.02] transition-all duration-200 flex items-center gap-1"
+                          >
+                            {s} <ArrowRight className="w-3 h-3 opacity-50" />
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </div>
+                  {msg.role === "user" && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.1, type: "spring" }}
+                      className="w-9 h-9 rounded-xl bg-secondary/80 flex items-center justify-center flex-shrink-0 mt-1 border border-border/30"
+                    >
+                      <User className="w-4 h-4 text-muted-foreground" />
+                    </motion.div>
+                  )}
+                </motion.div>
+              ))}
+            </AnimatePresence>
+
+            {/* Typing indicator */}
+            <AnimatePresence>
+              {isTyping && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -5 }}
+                  className="flex gap-3"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center flex-shrink-0 shadow-lg shadow-gold/10">
                     <Bot className="w-4 h-4 text-gold" />
                   </div>
-                )}
-                <div className={`max-w-[85%] ${msg.role === "user" ? "order-first" : ""}`}>
-                  <div className={`rounded-2xl px-5 py-3.5 text-sm leading-relaxed ${
-                    msg.role === "user"
-                      ? "bg-gold text-background ml-auto rounded-br-md"
-                      : "glass-card rounded-bl-md"
-                  }`}>
-                    <div className="whitespace-pre-line">{msg.content}</div>
-                  </div>
-                  {msg.suggestions && (
-                    <div className="flex flex-wrap gap-2 mt-3">
-                      {msg.suggestions.map((s) => (
-                        <button
-                          key={s}
-                          onClick={() => sendMessage(s)}
-                          className="text-xs px-3 py-1.5 rounded-full gold-outline-btn"
-                        >
-                          {s}
-                        </button>
+                  <div className="glass-card rounded-2xl rounded-bl-md px-5 py-4 border border-border/30">
+                    <div className="flex gap-1.5">
+                      {[0, 1, 2].map((d) => (
+                        <motion.span
+                          key={d}
+                          animate={{ y: [0, -6, 0] }}
+                          transition={{ repeat: Infinity, duration: 0.8, delay: d * 0.15 }}
+                          className="w-2 h-2 rounded-full bg-gold/60"
+                        />
                       ))}
                     </div>
-                  )}
-                </div>
-                {msg.role === "user" && (
-                  <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0 mt-1">
-                    <User className="w-4 h-4 text-muted-foreground" />
                   </div>
-                )}
-              </motion.div>
-            ))}
-            {isTyping && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-3">
-                <div className="w-8 h-8 rounded-lg bg-gold/10 flex items-center justify-center flex-shrink-0">
-                  <Bot className="w-4 h-4 text-gold" />
-                </div>
-                <div className="glass-card rounded-2xl rounded-bl-md px-5 py-4">
-                  <div className="flex gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-gold/60 animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <span className="w-2 h-2 rounded-full bg-gold/60 animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <span className="w-2 h-2 rounded-full bg-gold/60 animate-bounce" style={{ animationDelay: "300ms" }} />
-                  </div>
-                </div>
-              </motion.div>
-            )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Input */}
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="sticky bottom-6">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="sticky bottom-6"
+          >
             <form
-              onSubmit={(e) => { e.preventDefault(); sendMessage(input); }}
-              className="flex gap-3 glass-card rounded-xl p-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                sendMessage(input);
+              }}
+              className="flex gap-3 glass-card rounded-2xl p-2.5 border border-border/30 shadow-xl shadow-black/5 focus-within:border-gold/30 transition-colors"
             >
               <Input
                 value={input}
@@ -143,7 +230,11 @@ export default function PerkAI() {
                 placeholder="Ask about cards, rewards, strategies..."
                 className="bg-transparent border-0 focus-visible:ring-0 text-sm"
               />
-              <button type="submit" className="gold-btn px-4 rounded-lg flex items-center" disabled={isTyping}>
+              <button
+                type="submit"
+                disabled={isTyping || !input.trim()}
+                className="gold-btn px-5 rounded-xl flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-lg shadow-gold/15"
+              >
                 <Send className="w-4 h-4" />
               </button>
             </form>
