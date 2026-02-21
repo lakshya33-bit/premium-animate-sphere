@@ -15,6 +15,8 @@ const navLinks = [
 ];
 
 const moreLinks = [
+  { label: "Compare Cards", href: "/compare" },
+  { label: "My Cards", href: "/my-cards" },
   { label: "About Us", href: "/about" },
   { label: "Privacy Policy", href: "/privacy" },
 ];
@@ -95,7 +97,7 @@ export default function Navbar() {
             <button onClick={toggleTheme} className="p-2 text-muted-foreground hover:text-gold transition-colors rounded-lg hover:bg-secondary/50">
               {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
-            <Link to="/dashboard" className="p-2 text-muted-foreground hover:text-gold transition-colors rounded-lg hover:bg-secondary/50">
+            <Link to="/favorites" className="p-2 text-muted-foreground hover:text-gold transition-colors rounded-lg hover:bg-secondary/50">
               <Heart className="w-4 h-4" />
             </Link>
             <Link to="/dashboard" className="p-2 text-muted-foreground hover:text-gold transition-colors rounded-lg hover:bg-secondary/50">
