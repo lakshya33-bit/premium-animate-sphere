@@ -26,14 +26,14 @@ const categoryExpenses = [
 ];
 
 const recentTransactions = [
-  { merchant: "Amazon India", category: "Shopping", amount: 4599, date: "Feb 19", card: "HDFC Infinia", reward: "₹152" },
-  { merchant: "Zomato Gold", category: "Food", amount: 1200, date: "Feb 18", card: "HDFC Diners Black", reward: "₹120" },
-  { merchant: "HPCL Fuel", category: "Fuel", amount: 3500, date: "Feb 17", card: "SBI Elite", reward: "₹88" },
-  { merchant: "Flipkart", category: "Shopping", amount: 8999, date: "Feb 16", card: "HDFC Infinia", reward: "₹297" },
-  { merchant: "MakeMyTrip", category: "Travel", amount: 12500, date: "Feb 15", card: "Axis Atlas", reward: "₹625" },
-  { merchant: "Swiggy", category: "Food", amount: 850, date: "Feb 14", card: "ICICI Emeralde", reward: "₹85" },
-  { merchant: "Croma", category: "Electronics", amount: 15999, date: "Feb 12", card: "SBI Elite", reward: "₹400" },
-  { merchant: "BigBasket", category: "Groceries", amount: 2340, date: "Feb 11", card: "HDFC Infinia", reward: "₹187" },
+  { merchant: "Amazon India", category: "Shopping", amount: 4599, date: "Feb 19", card: "ICICI Emeralde Private", reward: "₹230" },
+  { merchant: "Zomato Gold", category: "Food", amount: 1200, date: "Feb 18", card: "Axis Neo", reward: "₹120" },
+  { merchant: "HPCL Fuel", category: "Fuel", amount: 3500, date: "Feb 17", card: "ICICI Rubyx", reward: "₹88" },
+  { merchant: "Flipkart", category: "Shopping", amount: 8999, date: "Feb 16", card: "HDFC Shoppers Stop", reward: "₹360" },
+  { merchant: "MakeMyTrip", category: "Travel", amount: 12500, date: "Feb 15", card: "ICICI MakeMyTrip", reward: "₹625" },
+  { merchant: "Swiggy", category: "Food", amount: 850, date: "Feb 14", card: "HSBC Premier", reward: "₹85" },
+  { merchant: "Croma", category: "Electronics", amount: 15999, date: "Feb 12", card: "ICICI Emeralde Private", reward: "₹480" },
+  { merchant: "BigBasket", category: "Groceries", amount: 2340, date: "Feb 11", card: "HSBC Premier", reward: "₹187" },
 ];
 
 const totalExpense = categoryExpenses.reduce((s, c) => s + c.value, 0);
@@ -252,7 +252,7 @@ export default function KnowYourCards() {
                   <h3 className="font-serif text-lg font-semibold mb-1">Card-wise Spending</h3>
                   <p className="text-xs text-muted-foreground mb-6">Spend distribution across your cards</p>
                   <ResponsiveContainer width="100%" height={200}>
-                    <BarChart data={[{ card: "HDFC Infinia", amount: 22500 }, { card: "Diners Black", amount: 12800 }, { card: "Axis Atlas", amount: 8500 }, { card: "SBI Elite", amount: 5400 }, { card: "ICICI Emeralde", amount: 4000 }]}>
+                    <BarChart data={[{ card: "Emeralde Private", amount: 22500 }, { card: "HSBC Premier", amount: 12800 }, { card: "ICICI MakeMyTrip", amount: 8500 }, { card: "Axis Neo", amount: 5400 }, { card: "ICICI Rubyx", amount: 4000 }, { card: "HDFC Shoppers", amount: 3200 }]}>
                       <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 12% 18%)" />
                       <XAxis dataKey="card" tick={{ fill: "hsl(220 10% 55%)", fontSize: 11 }} axisLine={false} />
                       <YAxis tick={{ fill: "hsl(220 10% 55%)", fontSize: 11 }} axisLine={false} tickFormatter={(v) => `₹${v / 1000}K`} />

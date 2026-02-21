@@ -1,14 +1,16 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, ExternalLink, Clock, TrendingUp, CreditCard, Tag } from "lucide-react";
+import { ExternalLink, Clock, TrendingUp, CreditCard, Tag, Home, ChevronRight } from "lucide-react";
 import PageLayout from "@/components/PageLayout";
-import { getVoucherById, iconMap } from "@/data/vouchers";
+import { getVoucherById, vouchers, iconMap } from "@/data/vouchers";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { Gift } from "lucide-react";
 
 export default function VoucherDetail() {
   const { id } = useParams<{ id: string }>();
   const voucher = getVoucherById(id || "");
+
+  const relatedVouchers = vouchers.filter((v) => v.id !== id && v.category === voucher?.category).slice(0, 3);
 
   if (!voucher) {
     return (
@@ -27,9 +29,14 @@ export default function VoucherDetail() {
     <PageLayout>
       <section className="py-12">
         <div className="container mx-auto px-4 max-w-4xl">
-          <Link to="/vouchers" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-gold transition-colors mb-8">
-            <ArrowLeft className="w-4 h-4" /> Back to Vouchers
-          </Link>
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-1.5 text-xs text-muted-foreground mb-6">
+            <Link to="/" className="hover:text-gold transition-colors flex items-center gap-1"><Home className="w-3 h-3" /> Home</Link>
+            <ChevronRight className="w-3 h-3" />
+            <Link to="/vouchers" className="hover:text-gold transition-colors">Vouchers</Link>
+            <ChevronRight className="w-3 h-3" />
+            <span className="text-foreground">{voucher.name}</span>
+          </nav>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass-card rounded-2xl p-8 mb-8">
             <div className="flex flex-col sm:flex-row items-start gap-6">
@@ -95,6 +102,29 @@ export default function VoucherDetail() {
               </div>
             </motion.div>
           </div>
+
+          {/* Related Vouchers */}
+          {relatedVouchers.length > 0 && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+              <h3 className="font-serif text-lg font-semibold mb-4">Related Vouchers</h3>
+              <div className="grid sm:grid-cols-3 gap-4">
+                {relatedVouchers.map((v) => {
+                  const RelIcon = iconMap[v.category] || Gift;
+                  return (
+                    <Link key={v.id} to={`/vouchers/${v.id}`} className="glass-card rounded-xl p-4 flex items-center gap-3 group hover:border-gold/30 hover:shadow-lg hover:shadow-gold/5 transition-all">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${v.color}15` }}>
+                        <RelIcon className="w-5 h-5" style={{ color: v.color }} />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold group-hover:text-gold transition-colors">{v.name}</h4>
+                        <p className="text-xs text-muted-foreground">{v.discount}</p>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
         </div>
       </section>
     </PageLayout>

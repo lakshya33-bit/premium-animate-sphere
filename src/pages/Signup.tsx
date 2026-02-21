@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
-import { Heart, TrendingUp, Sparkles } from "lucide-react";
+import { Heart, TrendingUp, Sparkles, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import FloatingParticles from "@/components/FloatingParticles";
 import logo from "@/assets/cardperks-logo.png";
@@ -22,13 +22,33 @@ const fieldVariants = {
   }),
 };
 
+function getPasswordStrength(pw: string): { label: string; color: string; width: string } {
+  if (pw.length === 0) return { label: "", color: "", width: "0%" };
+  if (pw.length < 6) return { label: "Weak", color: "bg-destructive", width: "25%" };
+  if (pw.length < 8) return { label: "Fair", color: "bg-orange-400", width: "50%" };
+  if (/[A-Z]/.test(pw) && /[0-9]/.test(pw) && pw.length >= 10) return { label: "Strong", color: "bg-green-500", width: "100%" };
+  return { label: "Good", color: "bg-gold", width: "75%" };
+}
+
 export default function Signup() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [emailError, setEmailError] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const strength = getPasswordStrength(password);
+
+  const validateEmail = (val: string) => {
+    if (val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+      setEmailError("Please enter a valid email");
+    } else {
+      setEmailError("");
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,6 +56,7 @@ export default function Signup() {
       toast({ title: "Missing fields", description: "Please fill in all required fields.", variant: "destructive" });
       return;
     }
+    if (emailError) return;
     if (password.length < 6) {
       toast({ title: "Weak password", description: "Password must be at least 6 characters.", variant: "destructive" });
       return;
@@ -81,11 +102,34 @@ export default function Signup() {
               </motion.div>
               <motion.div custom={1} variants={fieldVariants} initial="hidden" animate="visible" className="space-y-2">
                 <Label htmlFor="email" className="text-sm">Email</Label>
-                <Input id="email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="bg-secondary/50 border-border/50 focus:border-gold/50 focus:shadow-[0_0_0_3px_hsl(var(--gold)/0.1)] transition-all" />
+                <Input
+                  id="email" type="email" placeholder="you@example.com" value={email}
+                  onChange={(e) => { setEmail(e.target.value); validateEmail(e.target.value); }}
+                  onBlur={() => validateEmail(email)}
+                  className={`bg-secondary/50 border-border/50 focus:border-gold/50 focus:shadow-[0_0_0_3px_hsl(var(--gold)/0.1)] transition-all ${emailError ? "border-destructive" : ""}`}
+                />
+                {emailError && <p className="text-[11px] text-destructive">{emailError}</p>}
               </motion.div>
               <motion.div custom={2} variants={fieldVariants} initial="hidden" animate="visible" className="space-y-2">
                 <Label htmlFor="password" className="text-sm">Password</Label>
-                <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="bg-secondary/50 border-border/50 focus:border-gold/50 focus:shadow-[0_0_0_3px_hsl(var(--gold)/0.1)] transition-all" />
+                <div className="relative">
+                  <Input
+                    id="password" type={showPassword ? "text" : "password"} placeholder="••••••••" value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="bg-secondary/50 border-border/50 focus:border-gold/50 focus:shadow-[0_0_0_3px_hsl(var(--gold)/0.1)] transition-all pr-10"
+                  />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                {password && (
+                  <div className="space-y-1.5 mt-2">
+                    <div className="h-1.5 rounded-full bg-secondary/50 overflow-hidden">
+                      <div className={`h-full rounded-full transition-all duration-300 ${strength.color}`} style={{ width: strength.width }} />
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">Password strength: <span className="font-medium text-foreground">{strength.label}</span></p>
+                  </div>
+                )}
               </motion.div>
               <motion.div custom={3} variants={fieldVariants} initial="hidden" animate="visible">
                 <button type="submit" className="w-full gold-btn py-3 rounded-xl text-sm font-semibold">Create Account</button>

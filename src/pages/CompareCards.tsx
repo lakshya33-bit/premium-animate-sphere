@@ -69,8 +69,12 @@ function CardSelector({ onSelect, selectedIds, slotIndex }: { onSelect: (card: C
                   onClick={() => { onSelect(card); setOpen(false); setSearch(""); }}
                   className="w-full px-4 py-3 flex items-center gap-3 hover:bg-secondary/50 transition-colors text-left"
                 >
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${card.color}20` }}>
-                    <CreditCard className="w-4 h-4" style={{ color: card.color }} />
+                  <div className="w-10 h-[26px] rounded-lg overflow-hidden shadow-sm flex-shrink-0">
+                    {card.image ? (
+                      <img src={card.image} alt={card.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full" style={{ background: `linear-gradient(135deg, ${card.color}, ${card.color}88)` }} />
+                    )}
                   </div>
                   <div>
                     <p className="text-xs font-medium">{card.name}</p>
@@ -136,8 +140,12 @@ export default function CompareCards() {
                 >
                   <X className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
                 </button>
-                <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-3" style={{ backgroundColor: `${card.color}15` }}>
-                  <CreditCard className="w-6 h-6" style={{ color: card.color }} />
+                <div className="w-20 h-[50px] rounded-xl overflow-hidden shadow-lg shadow-black/30 mb-3">
+                  {card.image ? (
+                    <img src={card.image} alt={card.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full" style={{ background: `linear-gradient(135deg, ${card.color}, ${card.color}88)` }} />
+                  )}
                 </div>
                 <h3 className="font-serif text-sm font-bold mb-1">{card.name}</h3>
                 <p className="text-[10px] text-muted-foreground">{card.issuer}</p>
