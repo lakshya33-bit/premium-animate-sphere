@@ -107,7 +107,7 @@ export default function KnowYourCards() {
             <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">Cards & <span className="gold-gradient">Expenses</span></h1>
             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
               <p className="text-muted-foreground max-w-xl">Deep-dive into every credit card's perks, compare benefits, and track your spending across all cards.</p>
-              <Link to="/compare" className="gold-btn px-5 py-2.5 rounded-xl text-sm flex items-center gap-2 flex-shrink-0 w-fit">
+              <Link to="/compare" className="px-5 py-2.5 rounded-xl text-sm flex items-center gap-2 flex-shrink-0 w-fit border border-gold/30 text-gold hover:bg-gold/10 transition-all duration-300 font-medium backdrop-blur-sm">
                 <GitCompare className="w-4 h-4" /> Compare Cards
               </Link>
             </div>
